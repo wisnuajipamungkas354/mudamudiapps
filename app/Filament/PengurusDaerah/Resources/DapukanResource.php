@@ -23,11 +23,14 @@ class DapukanResource extends Resource
 
     protected static ?string $navigationLabel = 'Dapukan';
 
+    protected static ?int $navigationSort = 1;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('tingkatan')
+                    ->label('Tingkatan')
                     ->options([
                         'Daerah' => 'Daerah',
                         'Desa' => 'Desa',
@@ -35,7 +38,9 @@ class DapukanResource extends Resource
                     ])
                     ->required(),
                 Forms\Components\TextInput::make('nama_dapukan')
+                    ->label('Nama Dapukan')
                     ->required()
+                    ->placeholder('Nama Dapukan')
                     ->maxLength(255),
             ]);
     }

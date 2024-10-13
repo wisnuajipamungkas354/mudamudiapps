@@ -26,11 +26,14 @@ class PengurusSedaerahResource extends Resource
 
     protected static ?string $navigationLabel = 'Pengurus Sedaerah';
 
+    protected static ?int $navigationSort = 2;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('tingkatan')
+                    ->label('Tingkatan')
                     ->options([
                         'Daerah' => 'Daerah',
                         'Desa' => 'Desa',
@@ -43,6 +46,7 @@ class PengurusSedaerahResource extends Resource
                     ->live()
                     ->required(),
                 Forms\Components\Select::make('dapukan')
+                    ->label('Dapukan')
                     ->searchable()
                     ->preload()
                     ->options(function (Get $get) {
@@ -51,9 +55,13 @@ class PengurusSedaerahResource extends Resource
                     })
                     ->required(),
                 Forms\Components\TextInput::make('nama_pengurus')
+                    ->label('Nama Pengurus')
+                    ->placeholder('Isi Nama Lengkap')
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('no_hp')
+                    ->label('Nomor HP')
+                    ->placeholder('Isi Nomor HP')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -89,7 +97,14 @@ class PengurusSedaerahResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->label('Hapus')
+                    ->icon('heroicon-s-trash')
+                    ->color('danger')
+                    ->modalHeading('Hapus Data')
+                    ->modalDescription('Apakah kamu yakin data ini akan dihapus?')
+                    ->modalSubmitActionLabel('Ya, Hapus')
+                    ->modalCancelActionLabel('Batal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

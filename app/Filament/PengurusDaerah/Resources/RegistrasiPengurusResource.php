@@ -26,6 +26,8 @@ class RegistrasiPengurusResource extends Resource
 
     protected static ?string $navigationLabel = 'Registrasi Pengurus';
 
+    protected static ?int $navigationSort = 4;
+
     public static function form(Form $form): Form
     {
         return $form
@@ -118,5 +120,10 @@ class RegistrasiPengurusResource extends Resource
         return [
             'index' => Pages\ManageRegistrasiPenguruses::route('/'),
         ];
+    }
+
+    public static function getNavigationBadge() : ?string
+    {
+        return static::getModel()::count();
     }
 }

@@ -16,7 +16,8 @@ class ManagePengurusSedaerahs extends ManageRecords
     {
         return [
             Actions\CreateAction::make()
-            ->label('Tambah Data'),
+            ->label('Tambah Data')
+            ->icon('heroicon-o-plus-circle'),
             Actions\ExportAction::make()
                 ->label('Export')
                 ->color('success')
