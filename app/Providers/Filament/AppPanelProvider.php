@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
+use App\Filament\App\Resources\RekapitulasiKegiatanDashboard;
 use App\Filament\App\Widgets\CountWidget;
 use App\Filament\App\Widgets\JkWidget;
 use App\Filament\App\Widgets\ArusKeluar;
@@ -47,6 +48,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Pages\Dashboard::class,
+                RekapitulasiKegiatanDashboard::class
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->widgets([
