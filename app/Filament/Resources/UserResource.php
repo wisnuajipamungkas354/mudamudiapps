@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\Daerah;
+use App\Models\Dapukan;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\User;
@@ -62,6 +63,8 @@ class UserResource extends Resource
                             $data = Desa::query()->pluck('nm_desa', 'nm_desa');
                         } elseif ($get('roles') == 4) {
                             $data = Kelompok::query()->pluck('nm_kelompok', 'nm_kelompok');
+                        } elseif ($get('roles') == 5) {
+                            $data = Dapukan::query()->where('tingkatan', '=', 'Daerah')->pluck('nama_dapukan', 'nama_dapukan');
                         }
                         return $data;
                     }),

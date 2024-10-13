@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
         $daerah = Role::create(['name' => 'MM Daerah']);
         $desa = Role::create(['name' => 'MM Desa']);
         $kelompok = Role::create(['name' => 'MM Kelompok']);
+        $pengurusdaerah = Role::create(['name' => 'Pengurus Daerah']);
 
         Permission::create([
             'name' => 'tambah mm',
@@ -246,5 +247,12 @@ class UserSeeder extends Seeder
             'detail' => 'Pakis Jaya',
             'is_admin' => false
         ])->assignRole($kelompok);
+
+        User::factory()->create([
+            'name' => 'Pengurus Daerah',
+            'email' => 'pengurusdaerah@kmd.com',
+            'detail' => 'Penerobos',
+            'is_admin' => false
+        ])->assignRole($pengurusdaerah);
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Daerah;
+use App\Models\Dapukan;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             PengurusSeeder::class,
             RegistrasiSeeder::class,
+            Dapukan::class
         ]);
     }
 }
