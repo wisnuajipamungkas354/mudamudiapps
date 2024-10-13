@@ -7,7 +7,7 @@ use App\Models\PengurusSedaerah;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
-class CountMudamudiWidget extends BaseWidget
+class CountWidget extends BaseWidget
 {
     protected function getStats(): array
     {

@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\PengurusDaerah\Widgets\CountMudamudiWidget;
+use App\Filament\PengurusDaerah\Widgets\CountWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -38,7 +38,7 @@ class PengurusDaerahPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/PengurusDaerah/Widgets'), for: 'App\\Filament\\PengurusDaerah\\Widgets')
             ->widgets([
-                CountMudamudiWidget::class
+                CountWidget::class
             ])
             ->middleware([
                 EncryptCookies::class,
