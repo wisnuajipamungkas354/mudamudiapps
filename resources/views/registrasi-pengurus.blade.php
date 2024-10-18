@@ -19,7 +19,7 @@
             <h2 class="text-2xl font-semibold text-center mb-6 mt-3">Form Registrasi Pengurus</h2>
             <div class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
-                <div>
+                    <div>
                         <label for="tingkatan" class="block text-sm font-medium text-gray-700">Tingkatan</label>
                         <select id="select-tingkatan" name="tingkatan"
                             class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500"
@@ -28,6 +28,14 @@
                             <option value="Daerah">Daerah</option>
                             <option value="Desa">Desa</option>
                             <option value="Kelompok">Kelompok</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="nama-tingkatan" class="block text-sm font-medium text-gray-700">Nama Tingkatan</label>
+                        <select id="select-nama-tingkatan" name="nama-tingkatan"
+                            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:border-blue-500 focus:ring-blue-500"
+                            required>
+                            <option value="">Pilih Tingkatan</option>
                         </select>
                     </div>
                     <div>
@@ -73,14 +81,19 @@
 
             $('#select-tingkatan').on('change', function() {
                 let tingkatan = $(this).val();
-                $.getJSON('/pengurus-daerah/registrasi-pengurus/getDapukan/' + tingkatan, function(data) {
+                $.getJSON('/pengurus-daerah/registrasi-pengurus/getOptions/' + tingkatan, function(data) {
+                    $('#select-nama-tingkatan option').remove();
                     $('#select-dapukan option').remove();
+                    $('#select-nama-tingkatan').append('<option value="">Pilih Nama Tingkatan</option>');
                     $('#select-dapukan').append('<option value="">Pilih Dapukan</option>');
-                    let menu = data.data;
+                    const dapukan = data.data.dapukan;
+                    const nama_tingkatan = data.data.nama_tingkatan;
                     // console.log(menu);
-                    $.each(menu, function(i, data) {
-                        $('#select-dapukan').append('<option value="' + data.nama_dapukan + '">' +
-                            data.nama_dapukan + '</option>');
+                    $.each(dapukan, function(i, data) {
+                        $('#select-dapukan').append(`<option value="${dapukan[i]}">${dapukan[i]}</option>`)
+                    });
+                    $.each(nama_tingkatan, function(i, data) {
+                        $('#select-nama-tingkatan').append(`<option value="${nama_tingkatan[i]}">${nama_tingkatan[i]}</option>`);
                     });
                 });
             })
@@ -104,6 +117,7 @@
                             type: 'POST',
                             data: {
                                 tingkatan: $('#select-tingkatan').val(),
+                                nama_tingkatan: $('#select-nama-tingkatan').val(),
                                 dapukan: $('#select-dapukan').val(),
                                 nama_pengurus: $('#nama-pengurus').val(),
                                 no_hp: $('#no-hp').val(),

@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Daerah;
 use App\Models\Dapukan;
+use App\Models\Desa;
+use App\Models\Kelompok;
 use App\Models\RegistrasiPengurus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -21,20 +24,29 @@ class RegistrasiPengurusController extends Controller
         ]);
     }
 
-    public function getDapukan($tingkatan) 
+    public function getOptions($tingkatan)
     {
-        $data = Dapukan::query()->where('tingkatan', '=', $tingkatan)->get();
-        
+        if($tingkatan == 'Daerah') {
+            $data['nama_tingkatan'] = Daerah::query()->pluck('nm_daerah');
+            $data['dapukan'] = Dapukan::query()->where('tingkatan', '=', $tingkatan)->pluck('nama_dapukan');
+        } elseif($tingkatan == 'Desa') {
+            $data['nama_tingkatan'] = Desa::query()->pluck('nm_desa');
+            $data['dapukan'] = Dapukan::query()->where('tingkatan', '=', $tingkatan)->pluck('nama_dapukan');
+        } elseif($tingkatan == 'Kelompok') {
+            $data['nama_tingkatan'] = Kelompok::query()->pluck('nm_kelompok');
+            $data['dapukan'] = Dapukan::query()->where('tingkatan', '=', $tingkatan)->pluck('nama_dapukan');
+        }
+
         if ($data) {
             return response()->json([
                 'status' => true,
-                'message' => 'Data Dapukan Ditemukan!',
+                'message' => 'Data Options Ditemukan!',
                 'data' => $data
             ], 200);
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'Data Desa tidak ditemukan!'
+                'message' => 'Data Options tidak ditemukan!'
             ], 404);
         }
     }
@@ -46,28 +58,33 @@ class RegistrasiPengurusController extends Controller
     {
         $validatedData = Validator::make($request->all(), [
          'tingkatan' => 'required',
+         'nama_tingkatan' => 'required',
          'dapukan' => 'required',
          'nama_pengurus' => 'required|min:3',
          'no_hp' => 'required|min:11'
         ], [
             'tingkatan.required' => 'Tingkatan Wajib Diisi!',
+            'nama_tingkatan.required' => 'Nama Tingkatan Wajib Diisi!',
             'nama_dapukan.required' => 'Dapukan Wajid Diisi!',
             'nama_pengurus.required' => 'Nama Lengkap Harus Diisi!',
-            'nama_pengurus.min' => 'Nama minimal 3 huruf',
-            'no_hp.required' => 'Nomor HP Wajib Diisi!'
+            'nama_pengurus.min' => 'Nama Minimal 3 huruf',
+            'no_hp.required' => 'Nomor HP Wajib Diisi!',
+            'no_hp.min' => 'Nomor HP Minimal 11 Huruf!',
         ]);
 
         if($validatedData->fails()) {
-            return response()->json(['errors' => 'Ada Kolom yang belum diisi, Mohon Amal Sholih dilengkapi kolom Isiannya yaa!']);
+            return response()->json(['errors' => $validatedData->errors()->first()]);
         } elseif(DB::table('pengurus_sedaerahs')
         ->where('nama_pengurus', $request->nama_pengurus)
         ->where('tingkatan', $request->tingkatan)
+        ->where('nama_tingkatan', $request->nama_tingkatan)
         ->where('dapukan', $request->dapukan)
         ->exists()) {
             return response()->json(['errors' => 'Data yang kamu masukkan sudah ada di Database!']);
         } elseif(DB::table('registrasi_penguruses')
         ->where('nama_pengurus', $request->nama_pengurus)
         ->where('tingkatan', $request->tingkatan)
+        ->where('nama_tingkatan', $request->nama_tingkatan)
         ->where('dapukan', $request->dapukan)
         ->exists()) {
             return response()->json(['errors' => 'Data yang kamu masukkan sudah pernah di Kirim!']);

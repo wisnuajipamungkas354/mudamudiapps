@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('registrasi_penguruses', function (Blueprint $table) {
             $table->id();
             $table->string('tingkatan');
+            $table->string('nama_tingkatan');
             $table->string('dapukan');
             $table->string('nama_pengurus');
             $table->string('no_hp');
