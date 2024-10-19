@@ -11,6 +11,7 @@ use App\Models\Kelompok;
 use App\Models\Mudamudi;
 use App\Models\Presensi;
 use App\Models\SesiKegiatan;
+use App\Models\Registrasi;
 use App\Models\Status;
 use Carbon\Carbon;
 use Filament\Actions\Action as ActionPage;
@@ -26,6 +27,9 @@ use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Filament\Resources\Pages\ListRecords\Tab;
+use Filament\Resources\Concerns\HasTabs;
+use Filament\Resources\Pages\Eloquent\Builder;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
@@ -40,7 +44,7 @@ use Illuminate\Support\Facades\DB;
 
 class PresensiKegiatan extends Page implements HasTable
 {
-    use InteractsWithRecord, InteractsWithTable, InteractsWithInfolists;
+    use InteractsWithRecord, InteractsWithTable, InteractsWithInfolists, HasTabs;
 
     protected static string $resource = KegiatanResource::class;
 
@@ -197,6 +201,12 @@ class PresensiKegiatan extends Page implements HasTable
             ]);
     }
 
+    // public function getTabs(): array {
+    //     return [
+    //         'Data Peserta' => Tab::make('Data Peserta'),
+    //         'Data Registrasi' => Tab::make('Cobain')->query(fn (Builder $query) => $this->query($query, Registrasi::class)),
+    //     ];
+    // }
 
     public function table(Table $table): Table
     {

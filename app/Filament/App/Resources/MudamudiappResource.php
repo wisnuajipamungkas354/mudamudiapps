@@ -292,15 +292,20 @@ class MudamudiappResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('Desa')
-                    ->relationship('desa', 'nm_desa'),
-                SelectFilter::make('Kelompok')
-                    ->relationship('kelompok', 'nm_kelompok'),
+                SelectFilter::make('desa')
+                    ->label('Desa')
+                    ->relationship('desa', 'nm_desa')
+                    ->multiple(),
+                SelectFilter::make('kelompok')
+                    ->label('Kelompok')
+                    ->relationship('kelompok', 'nm_kelompok')
+                    ->multiple(),
                 SelectFilter::make('mubaligh')
                     ->label('Mubaligh')
                     ->options(['Ya' => 'Ya', 'Bukan' => 'Bukan']),
                 SelectFilter::make('Status')
-                    ->options(fn () => Status::query()->pluck('nm_status', 'nm_status')),
+                    ->options(fn () => Status::query()->pluck('nm_status', 'nm_status'))
+                    ->multiple(),
                 SelectFilter::make('siap_nikah')
                     ->label('Siap Nikah')
                     ->options(['Siap' => 'Siap', 'Belum' => 'Belum']),
