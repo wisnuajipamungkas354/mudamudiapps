@@ -26,6 +26,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
 
 class PengurusAppResource extends Resource
 {
@@ -45,8 +46,10 @@ class PengurusAppResource extends Resource
                     ->schema([
                         TextInput::make('nm_pengurus')
                             ->label('Nama Pengurus')
+                            ->placeholder('Isi Nama Lengkap')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->dehydrateStateUsing(fn ($state) => Str::title($state)),
                         Radio::make('jk')
                             ->label('Jenis Kelamin')
                             ->options(['L' => 'Laki-laki', 'P' => 'Perempuan'])
@@ -100,6 +103,7 @@ class PengurusAppResource extends Resource
                             ->searchable(),
                         TextInput::make('no_hp')
                             ->label('Nomor HP')
+                            ->placeholder('Isi Nomor HP')
                             ->numeric()
                             ->required()
                     ])

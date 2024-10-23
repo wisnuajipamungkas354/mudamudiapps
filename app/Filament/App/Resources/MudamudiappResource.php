@@ -219,17 +219,14 @@ class MudamudiappResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('daerah.nm_daerah')
                     ->label('Daerah')
-                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('desa.nm_desa')
                     ->label('Desa')
-                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('kelompok.nm_kelompok')
                     ->label('Kelompok')
-                    ->numeric()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('nama')

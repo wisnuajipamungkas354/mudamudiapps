@@ -79,8 +79,8 @@ class RegistrasiController extends Controller
 
             // Memasukkan semua data kedalam tabel database dan tabel update
             Registrasi::create($validatedData);
-            // return redirect('/requestdata/create')->with('success', 'Request Data Berhasil!');
-            return response()->json(['success' => 'Datamu berhasil dikirim, Alhamdulillah Jazakumullohu Khoiro!']);
+            
+            return response()->json(['success' => '<p>Apabila terdapat data yang salah/ingin diubah, Segera <b>Konfirmasi</b> ke Pengurus Muda-Mudi Kelompokmu ya. <br><br><i>Mohon untuk tidak mengirim data lagi :) <br>Alhamdulillah Jazakumullohu Khoiro! </i></p>']);
         }
     }
 

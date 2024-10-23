@@ -292,8 +292,9 @@
                                     });
                                 } else if (response.success) {
                                     swalWithBootstrapButtons.fire({
-                                        title: "Berhasil!",
-                                        text: response.success,
+                                        title: "Datamu Berhasil Dikirim!",
+                                        // text: response.success,
+                                        html: response.success,
                                         icon: "success"
                                     }).then(($result) => location
                                         .reload());
