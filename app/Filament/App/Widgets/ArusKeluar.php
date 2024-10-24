@@ -35,7 +35,8 @@ class ArusKeluar extends BaseWidget
                     ->label('Tanggal')
                     ->date('d M Y'),
                 TextColumn::make('nama')
-                    ->label('Nama'),
+                    ->label('Nama')
+                    ->searchable(),
                 TextColumn::make('jk')
                     ->label('Jk'),
                 TextColumn::make('usia')
