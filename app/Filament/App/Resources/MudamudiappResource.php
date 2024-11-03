@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+USE SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MudamudiappResource extends Resource
 {
@@ -407,7 +408,7 @@ class MudamudiappResource extends Resource
     {
         return [
             'index' => Pages\ListMudamudiapps::route('/'),
-            // 'view' => Pages\ViewMudamudiapp::route('/{record}'),
+            'view' => Pages\ViewMudamudiapp::route('/{record}'),
             'create' => Pages\CreateMudamudiapp::route('/create'),
             'edit' => Pages\EditMudamudiapp::route('/{record}/edit'),
         ];

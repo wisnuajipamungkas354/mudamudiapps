@@ -11,9 +11,12 @@ use App\Models\Registrasi;
 use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Get;
+use Filament\Infolists;
+use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ViewMudamudiapp extends ViewRecord
 {
@@ -23,6 +26,21 @@ class ViewMudamudiapp extends ViewRecord
     {
         return 'Detail Data Muda-Mudi';
     }
+
+    public function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+        ->schema([
+            Infolists\Components\TextEntry::make('daerah.nm_daerah'),
+            Infolists\Components\TextEntry::make('desa.nm_desa'),
+            Infolists\Components\TextEntry::make('kelompok.nm_kelompok'),
+            Infolists\Components\TextEntry::make('nama'),
+            Infolists\Components\TextEntry::make('jk'),
+            Infolists\Components\TextEntry::make('kota_lahir'),
+            Infolists\Components\TextEntry::make('tgl_lahir'),
+        ]);
+    }
+
     protected function getHeaderActions(): array
     {
         return [

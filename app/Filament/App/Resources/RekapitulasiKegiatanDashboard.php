@@ -33,8 +33,6 @@ class RekapitulasiKegiatanDashboard extends \Filament\Pages\Dashboard
     protected static ?string $navigationLabel = 'Rekapitulasi';
     protected static ?int $navigationSort = 2;
 
-
-
     public function filtersForm(Form $form): Form
     {
         return $form
