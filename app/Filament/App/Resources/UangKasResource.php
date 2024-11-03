@@ -101,6 +101,7 @@ class UangKasResource extends Resource
                 ->wrap(),
                 BadgeColumn::make('jenis_kas')
                 ->color(fn (string $state): string => match ($state) {
+                    'Saldo Awal' => 'warning',
                     'Pemasukan' => 'success',
                     'Pengeluaran' => 'danger',
                 }),
@@ -115,6 +116,9 @@ class UangKasResource extends Resource
                         case 'Pengeluaran':
                             $value = 'heroicon-m-arrow-trending-down';
                             break;
+                        case 'Saldo Awal':
+                            $value = 'heroicon-m-arrow-path';
+                            break;
                     }
                     return $value;
                 })
@@ -126,6 +130,9 @@ class UangKasResource extends Resource
                             break;
                         case 'Pengeluaran':
                             $value = 'danger';
+                            break;
+                        case 'Saldo Awal':
+                            $value = 'warning';
                             break;
                     }
                     return $value;
