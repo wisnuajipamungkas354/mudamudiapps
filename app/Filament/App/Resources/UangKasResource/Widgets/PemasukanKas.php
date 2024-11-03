@@ -13,9 +13,10 @@ class PemasukanKas extends StatsOverviewWidget
 
     protected function getStats(): array
     { 
+        $saldo_awal = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('tahun', Carbon::now()->format('Y'))->where('bulan', Carbon::now()->format('m'))->where('jenis_kas', 'Saldo Awal')->sum('nominal');
         $pemasukan = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('tahun', Carbon::now()->format('Y'))->where('bulan', Carbon::now()->format('m'))->where('jenis_kas', 'Pemasukan')->sum('nominal');
         $pengeluaran = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('tahun', Carbon::now()->format('Y'))->where('bulan', Carbon::now()->format('m'))->where('jenis_kas', 'Pengeluaran')->sum('nominal');
-        $total_kas = $pemasukan - $pengeluaran;
+        $total = $saldo_awal + ($pemasukan - $pengeluaran);
         return [
             Stat::make('Sisa Kas', 'Rp ' . number_format($total_kas))
             ->chart([1,1,1])

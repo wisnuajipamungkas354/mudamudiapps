@@ -149,9 +149,10 @@ class UangKasResource extends Resource
                     Summarizer::make()
                     ->label('Total Akhir Kas')
                     ->using(function() {
+                        $saldo_awal = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Saldo Awal')->sum('nominal');
                         $pemasukan = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Pemasukan')->sum('nominal');
                         $pengeluaran = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Pengeluaran')->sum('nominal');
-                        $total = $pemasukan - $pengeluaran;
+                        $total = $saldo_awal + ($pemasukan - $pengeluaran);
                         return 'Rp. ' . number_format($total);
                     }),
                 ]
