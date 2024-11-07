@@ -408,9 +408,9 @@ class MudamudiappResource extends Resource
     {
         return [
             'index' => Pages\ListMudamudiapps::route('/'),
-            'view' => Pages\ViewMudamudiapp::route('/{record}'),
             'create' => Pages\CreateMudamudiapp::route('/create'),
             'edit' => Pages\EditMudamudiapp::route('/{record}/edit'),
+            'view' => Pages\ViewMudamudiapp::route('/{record}'),
         ];
     }
 }

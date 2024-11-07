@@ -24,8 +24,8 @@ class ManageUangKas extends ManageRecords
             ->mutateFormDataUsing(function(array $data): array {
                 $data['role'] = auth()->user()->roles[0]->name;
                 $data['tingkatan'] = auth()->user()->detail;
-                $data['tahun'] = Carbon::now()->format('Y');
-                $data['bulan'] = Carbon::now()->format('m');
+                $data['tahun'] = Carbon::parse($data['tgl'])->format('Y');
+                $data['bulan'] = Carbon::parse($data['tgl'])->format('m');
 
                 return $data;
             }),

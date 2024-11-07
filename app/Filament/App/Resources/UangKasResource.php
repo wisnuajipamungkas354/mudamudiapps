@@ -8,6 +8,7 @@ use App\Models\Pengurus;
 use App\Models\UangKas;
 use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -48,6 +49,13 @@ class UangKasResource extends Resource
                     return $bendahara;
                 })
                 ->required(),
+                DatePicker::make('tgl')
+                ->label('Tanggal')
+                ->displayFormat('d-m-Y')
+                ->native(false)
+                ->maxDate(Carbon::now())
+                ->default(Carbon::now())
+                ->suffixIcon('heroicon-m-calendar'),
                 Select::make('jenis_kas')
                 ->label('Jenis Kas')
                 ->options(['Pemasukan' => 'Pemasukan','Pengeluaran' => 'Pengeluaran', 'Saldo Awal' => 'Saldo Awal'])
@@ -90,9 +98,9 @@ class UangKasResource extends Resource
 
         return $table
             ->columns([
-                TextColumn::make('created_at')
+                TextColumn::make('tgl')
                 ->label('Tanggal')
-                ->date('d-m-Y'),
+                ->date('d M Y'),
                 TextColumn::make('nm_penginput')
                 ->label('Nama Penginput'),
                 TextColumn::make('keterangan')

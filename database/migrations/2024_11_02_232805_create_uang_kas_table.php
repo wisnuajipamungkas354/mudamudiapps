@@ -21,6 +21,7 @@ return new class extends Migration
             $table->enum('jenis_kas', ['Pemasukan', 'Pengeluaran', 'Saldo Awal']);
             $table->integer('nominal');
             $table->text('keterangan');
+            $table->date('tgl');
             $table->timestamps();
         });
     }

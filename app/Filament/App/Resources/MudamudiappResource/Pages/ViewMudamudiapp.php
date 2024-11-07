@@ -12,10 +12,14 @@ use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Get;
 use Filament\Infolists;
+use Filament\Infolists\Components\Card;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Infolists\Infolist;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ViewMudamudiapp extends ViewRecord
@@ -31,14 +35,43 @@ class ViewMudamudiapp extends ViewRecord
     {
         return $infolist
         ->schema([
-            Infolists\Components\TextEntry::make('daerah.nm_daerah'),
-            Infolists\Components\TextEntry::make('desa.nm_desa'),
-            Infolists\Components\TextEntry::make('kelompok.nm_kelompok'),
-            Infolists\Components\TextEntry::make('nama'),
-            Infolists\Components\TextEntry::make('jk'),
-            Infolists\Components\TextEntry::make('kota_lahir'),
-            Infolists\Components\TextEntry::make('tgl_lahir'),
-        ]);
+            ViewEntry::make('')
+            ->view('infolists.components.qr-code-generator')
+            ->columnSpan(1)
+            ,
+            Section::make('Sambung')
+            ->schema([
+                Infolists\Components\TextEntry::make('daerah.nm_daerah'),
+                Infolists\Components\TextEntry::make('desa.nm_desa'),
+                Infolists\Components\TextEntry::make('kelompok.nm_kelompok'),
+            ])
+            ->columns(3)
+            ->columnSpan(3),
+            Section::make('Data Diri')
+            ->schema([
+                Infolists\Components\TextEntry::make('nama'),
+                Infolists\Components\TextEntry::make('jk')
+                ->label('Jenis Kelamin'),
+                Infolists\Components\TextEntry::make('kota_lahir'),
+                Infolists\Components\TextEntry::make('tgl_lahir'),
+                Infolists\Components\TextEntry::make('mubaligh')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'Ya' => 'success',
+                    'Bukan' => 'danger',
+                }),
+                Infolists\Components\TextEntry::make('status'),
+                Infolists\Components\TextEntry::make('detail_status'),
+                Infolists\Components\TextEntry::make('siap_nikah')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                    'Siap' => 'success',
+                    'Belum' => 'danger',
+                }),
+            ])
+            ->columns(4)
+        ])
+        ->columns(4);
     }
 
     protected function getHeaderActions(): array
