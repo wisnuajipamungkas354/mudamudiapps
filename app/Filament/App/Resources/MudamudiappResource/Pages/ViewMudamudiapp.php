@@ -51,7 +51,8 @@ class ViewMudamudiapp extends ViewRecord
             ->schema([
                 Infolists\Components\TextEntry::make('nama'),
                 Infolists\Components\TextEntry::make('jk')
-                ->label('Jenis Kelamin'),
+                ->label('Jenis Kelamin')
+                ->formatStateUsing(fn (string $state) : string => $state === 'L' ? 'Laki-laki' : 'Perempuan'),
                 Infolists\Components\TextEntry::make('kota_lahir'),
                 Infolists\Components\TextEntry::make('tgl_lahir'),
                 Infolists\Components\TextEntry::make('mubaligh')
@@ -70,6 +71,7 @@ class ViewMudamudiapp extends ViewRecord
                 }),
             ])
             ->columns(4)
+            ->columnSpan(4)
         ])
         ->columns(4);
     }

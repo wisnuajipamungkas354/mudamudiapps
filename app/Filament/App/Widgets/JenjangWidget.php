@@ -42,19 +42,32 @@ class JenjangWidget extends ChartWidget
     {
         $role = $this->getUserRole();
         $data = [];
+        $total = '';
+        $smp = '';
+        $sma = '';
+        $lepasPelajar = '';
         if ($role[0] == 'MM Daerah') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMP')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('status', 'Pelajar SMK')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[1])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMP')->count();
+            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('status', 'Pelajar SMK')->count();
+            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $total = Mudamudi::query()->where('daerah_id', $role[1])->count();
+            
         } elseif ($role[0] == 'MM Desa') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMP')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[2])->where('desa_id', $role[2])->where('status', 'Pelajar SMK')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMP')->count();
+            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[2])->where('desa_id', $role[2])->where('status', 'Pelajar SMK')->count();
+            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $total = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->count();
         } elseif ($role[0] == 'MM Kelompok') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMP')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMK')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMP')->count();
+            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMK')->count();
+            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->whereNot('status', 'LIKE', 'Pelajar %')->count();
+            $total = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->count();
         }
+
+        $data[0] = round(($smp / $total) * 100);
+        $data[1] = round(($sma / $total) * 100);
+        $data[2] = round(($lepasPelajar / $total) * 100);
+
         return [
             'datasets' => [
                 [
@@ -67,7 +80,7 @@ class JenjangWidget extends ChartWidget
                     ]
                 ],
             ],
-            'labels' => ['SMP', 'SMA/K', 'Lepas Pelajar'],
+            'labels' => ['SMP (%)', 'SMA/K (%)', 'Lepas Pelajar (%)'],
         ];
     }
 

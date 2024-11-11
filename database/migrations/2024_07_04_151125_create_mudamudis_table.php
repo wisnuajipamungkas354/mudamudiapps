@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('mudamudis', function (Blueprint $table) {
             $table->id();
+            // $table->integer('nig')->nullable(true);
             $table->foreignId('daerah_id')
                 ->constrained()
                 ->cascadeOnUpdate()

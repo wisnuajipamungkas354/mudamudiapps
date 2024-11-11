@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('tahun');
             $table->integer('bulan');
             $table->string('nm_penginput');
-            $table->enum('jenis_kas', ['Pemasukan', 'Pengeluaran', 'Saldo Awal']);
+            $table->enum('jenis_kas', ['Pemasukan', 'Pengeluaran']);
             $table->integer('nominal');
             $table->text('keterangan');
             $table->date('tgl');

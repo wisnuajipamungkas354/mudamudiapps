@@ -1,22 +1,23 @@
 <?php
 
-namespace App\Filament\App\Resources\PengurusAppResource\Pages;
+namespace App\Filament\App\Resources\UangKasResource\Pages;
 
-use App\Filament\App\Resources\PengurusAppResource;
+use App\Filament\App\Resources\UangKasResource;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
-class CreatePengurusApp extends CreateRecord
+class CreateUangKas extends CreateRecord
 {
-    protected static string $resource = PengurusAppResource::class;
+    protected static string $resource = UangKasResource::class;
 
     public function getTitle(): string|Htmlable
     {
-        return 'Tambah Data Pengurus';
+        return 'Tambah Data Kas';
     }
-    
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
@@ -25,9 +26,11 @@ class CreatePengurusApp extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         $data['role'] = auth()->user()->roles[0]->name;
-        $data['nm_tingkatan'] = auth()->user()->detail;
+        $data['tingkatan'] = auth()->user()->detail;
+        $data['tahun'] = Carbon::parse($data['tgl'])->format('Y');
+        $data['bulan'] = Carbon::parse($data['tgl'])->format('m');
 
         $record = static::getModel()::create($data);
         return $record;
-    }    
+    }
 }

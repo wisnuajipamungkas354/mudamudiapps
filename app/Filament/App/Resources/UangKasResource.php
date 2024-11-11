@@ -9,7 +9,6 @@ use App\Models\UangKas;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -18,15 +17,12 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\BadgeColumn;
-use Filament\Tables\Columns\Summarizers\Sum;
-use Filament\Tables\Columns\Summarizers\Summarizer;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Grouping\Group;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Support\Facades\DB;
 
 class UangKasResource extends Resource
 {
@@ -42,35 +38,37 @@ class UangKasResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('nm_penginput')
-                ->label('Nama Penginput')
-                ->options(function () {
-                    $bendahara = Pengurus::query()->where('role', auth()->user()->roles[0]->name)->where('nm_tingkatan', auth()->user()->detail)->where('dapukan', 'Bendahara')->pluck('nm_pengurus', 'nm_pengurus');
-                    return $bendahara;
-                })
-                ->required(),
-                DatePicker::make('tgl')
-                ->label('Tanggal')
-                ->displayFormat('d-m-Y')
-                ->native(false)
-                ->maxDate(Carbon::now())
-                ->default(Carbon::now())
-                ->suffixIcon('heroicon-m-calendar'),
-                Select::make('jenis_kas')
-                ->label('Jenis Kas')
-                ->options(['Pemasukan' => 'Pemasukan','Pengeluaran' => 'Pengeluaran', 'Saldo Awal' => 'Saldo Awal'])
-                ->required(),
-                TextInput::make('nominal')
-                ->label('Nominal')
-                ->placeholder('Masukkan nominal')
-                ->numeric()
-                ->required(),
-                Textarea::make('keterangan')
-                ->label('Keterangan')
-                ->placeholder('Masukkan Keterangan')
-                ->required(),
+                    Select::make('nm_penginput')
+                    ->label('Nama Penginput')
+                    ->placeholder('Pilih nama bendahara')
+                    ->options(function () {
+                        $bendahara = Pengurus::query()->where('role', auth()->user()->roles[0]->name)->where('nm_tingkatan', auth()->user()->detail)->where('dapukan', 'Bendahara')->pluck('nm_pengurus', 'nm_pengurus');
+                        return $bendahara;
+                    })
+                    ->required(),
+                    DatePicker::make('tgl')
+                    ->label('Tanggal')
+                    ->displayFormat('d-m-Y')
+                    ->native(false)
+                    ->maxDate(Carbon::now())
+                    ->default(Carbon::now())
+                    ->suffixIcon('heroicon-m-calendar'),
+                    Select::make('jenis_kas')
+                    ->label('Jenis Kas')
+                    ->options(['Pemasukan' => 'Pemasukan','Pengeluaran' => 'Pengeluaran'])
+                    ->required(),
+                    TextInput::make('nominal')
+                    ->label('Nominal')
+                    ->placeholder('Masukkan nominal')
+                    ->numeric()
+                    ->required(),
+                    Textarea::make('keterangan')
+                    ->label('Keterangan')
+                    ->placeholder('Masukkan Keterangan')
+                    ->required(),
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -147,36 +145,59 @@ class UangKasResource extends Resource
                 })
                 ->formatStateUsing(fn (string $state): string => 'Rp. ' . number_format($state, 0))
                 ->alignEnd()
-                ->summarize([
-                    Sum::make()
-                    ->label('Total Pemasukan')
-                    ->query(fn (Builder $query) => $query->where('jenis_kas', 'Pemasukan')),
-                    Sum::make()
-                    ->label('Total Pengeluaran')
-                    ->query(fn (Builder $query) => $query->where('jenis_kas', 'Pengeluaran')),
-                    Summarizer::make()
-                    ->label('Total Akhir Kas')
-                    ->using(function() {
-                        $saldo_awal = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Saldo Awal')->sum('nominal');
-                        $pemasukan = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Pemasukan')->sum('nominal');
-                        $pengeluaran = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', 'Pengeluaran')->sum('nominal');
-                        $total = $saldo_awal + ($pemasukan - $pengeluaran);
-                        return 'Rp. ' . number_format($total);
-                    }),
-                ]
-                ),
             ])
             ->filters([
-                SelectFilter::make('tahun')
-                ->options($listTahun),
-                SelectFilter::make('bulan')
-                ->options($listBulan),
+                Filter::make('filter')
+                ->form([
+                    Select::make('tahun')
+                    ->placeholder('Pilih tahun')
+                    ->options($listTahun)
+                    ->default(Carbon::now()->format('Y')),
+                    Select::make('bulan')
+                    ->placeholder('Pilih bulan')
+                    ->options($listBulan)
+                    ->default(Carbon::now()->format('m')),
+                    Select::make('jenis_kas')
+                    ->placeholder('Pilih Jenis Kas')
+                    ->options(['Pemasukan' => 'Pemasukan', 'Pengeluaran' => 'Pengeluaran'])
+                ])
+                ->query(function (EloquentBuilder $query, array $data): EloquentBuilder {
+                    return $query
+                        ->when(
+                            $data['tahun'] ?? null,
+                            fn (EloquentBuilder $query, $tahun): EloquentBuilder => $query->where('tahun', '=', $tahun),
+                        )
+                        ->when(
+                            $data['bulan'] ?? null,
+                            fn (EloquentBuilder $query, $bulan): EloquentBuilder => $query->where('bulan', '=', $bulan),
+                        )
+                        ->when(
+                            $data['jenis_kas'] ?? null,
+                            fn (EloquentBuilder $query, $jenisKas): EloquentBuilder => $query->where('jenis_kas', '=', $jenisKas),
+                        );
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+                    if ($data['tahun'] ?? null) {
+                        $indicators['tahun'] = 'Tahun ' . $data['tahun'];
+                    }
+                    if ($data['bulan'] ?? null) {
+                        $indicators['bulan'] = 'Bulan ' .$data['bulan'];
+                    }
+
+                    return $indicators;
+                }),
             ])
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
-                ]),
+                    Tables\Actions\DeleteAction::make()
+                    ->label('Hapus')
+                    ->modalHeading('Hapus Data')
+                    ->modalDescription('Apakah kamu yakin data kas ini akan dihapus ?')
+                    ->modalSubmitActionLabel('Ya Hapus')
+                    ->modalCancelActionLabel('Batal'),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -187,15 +208,24 @@ class UangKasResource extends Resource
             ->emptyStateDescription('Klik Tambah Data untuk menambah catatan keuangan');
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageUangKas::route('/'),
+            'index' => Pages\ListUangKas::route('/'),
+            'create' => Pages\CreateUangKas::route('/create'),
+            'edit' => Pages\EditUangKas::route('/{record}/edit'),
         ];
     }
 
     public static function getEloquentQuery(): EloquentBuilder
     {
-        return parent::getEloquentQuery()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail);
+        return parent::getEloquentQuery()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->orderBy('tgl', 'desc');
     }
 }
