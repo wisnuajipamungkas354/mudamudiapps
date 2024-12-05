@@ -24,10 +24,12 @@ class PemasukanKas extends StatsOverviewWidget
     { 
         $pemasukan = $this->getPageTableQuery()->where('jenis_kas', 'Pemasukan')->sum('nominal');
         $pengeluaran = $this->getPageTableQuery()->where('jenis_kas', 'Pengeluaran')->sum('nominal');
-        $total_kas = $pemasukan - $pengeluaran;
+        $totalPemasukan = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', '=', 'Pemasukan')->sum('nominal');
+        $totalPengeluaran = UangKas::query()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->where('jenis_kas', '=', 'Pengeluaran')->sum('nominal');
+        $totalKas = $totalPemasukan - $totalPengeluaran;
 
         return [
-            Stat::make('Sisa Kas', 'Rp ' . number_format($total_kas))
+            Stat::make('Sisa Kas', 'Rp ' . number_format($totalKas))
             ->chart([1,1,1])
             ->color('info')
             ->icon('heroicon-o-banknotes'),
