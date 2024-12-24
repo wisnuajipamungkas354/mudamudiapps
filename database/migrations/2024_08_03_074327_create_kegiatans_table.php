@@ -12,17 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kegiatans', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
             $table->string('nm_kegiatan');
             $table->string('tempat_kegiatan');
-            $table->dateTime('waktu_pelaksanaan');
-            $table->string('asal_data_peserta');
+            $table->dateTime('waktu_mulai');
+            $table->dateTime('waktu_selesai');
             $table->string('tingkatan_kegiatan');
             $table->string('detail_tingkatan');
             $table->string('kategori_peserta');
-            $table->boolean('is_sesi')->default(false);
-            $table->integer('jml_sesi')->default(1);
-            $table->integer('sesi_aktif')->default(1);
+            $table->string('detail_kategori')->nullable();
+            $table->string('kode_kegiatan', 6);
             $table->boolean('is_finish')->default(false);
             $table->timestamps();
         });

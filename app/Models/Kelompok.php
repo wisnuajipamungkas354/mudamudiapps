@@ -24,4 +24,9 @@ class Kelompok extends Model
     {
         return $this->hasMany(Registrasi::class);
     }
+
+    public function laporanKegiatan()
+    {
+        return $this->hasMany(LaporanKegiatan::class);
+    }
 }

@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('presensis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kegiatan_id')->constrained()
+            $table->string('kegiatan_id');
+            $table->foreign('kegiatan_id')->references('id')->on('kegiatans')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->integer('sesi');
             $table->foreignId('mudamudi_id')->constrained()
-                ->cascadeOnUpdate()
-                ->cascadeOnDelete();
-            $table->string('keterangan');
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
+            $table->string('keterangan')->default('Alfa');
             $table->string('kedatangan')->default('Tidak Datang');
+            $table->string('kategori_izin')->nullable(); // Kerja, Kuliah, Sekolah, Acara Keluarga, Acara Mendesak
+            $table->text('ket_izin')->nullable(); // 
             $table->timestamps();
         });
     }

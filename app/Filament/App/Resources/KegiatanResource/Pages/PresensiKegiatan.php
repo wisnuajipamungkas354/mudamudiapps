@@ -10,8 +10,8 @@ use App\Models\Kegiatan;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
 use App\Models\Presensi;
-use App\Models\SesiKegiatan;
 use App\Models\Registrasi;
+use App\Models\LaporanKegiatan;
 use App\Models\Status;
 use Carbon\Carbon;
 use Filament\Actions\Action as ActionPage;
@@ -59,38 +59,11 @@ class PresensiKegiatan extends Page implements HasTable
         if ($this->record->detail_tingkatan != auth()->user()->detail) {
             abort(401);
         }
-    }
 
-    public function getSubheading(): string|Htmlable|null
-    {
-        if ($this->record->is_sesi == true) {
-            $nm_sesi = DB::table('sesi_kegiatans')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->value('nm_sesi');
-            return $nm_sesi;
-        } else {
-            return null;
+        if($this->record->is_finish == true) {
+            abort(403, 'MAAF, PRESENSI SUDAH DITUTUP!');
         }
     }
-
-    public function getHeaderActions(): array
-    {
-        return [
-            ActionPage::make('save')
-                ->label(fn() => $this->record->is_sesi ? 'Tutup Sesi ' . $this->record->sesi_aktif : 'Tutup Presensi')
-                ->color('danger')
-                ->requiresConfirmation()
-                ->modalHeading(fn() => $this->record->is_sesi ? 'Tutup Sesi ' . $this->record->sesi_aktif : 'Tutup Presensi')
-                ->modalDescription('Apakah Presensi sudah benar-benar selesai? Seluruh data akan disimpan & tidak dapat diubah lagi!')
-                ->action(function () {
-                    if ($this->record->is_sesi == true && $this->record->sesi_aktif < $this->record->jml_sesi) {
-                        DB::table('kegiatans')->where('id', $this->record->id)->update(['sesi_aktif' => $this->record->sesi_aktif + 1]);
-                    } else {
-                        DB::table('kegiatans')->where('id', $this->record->id)->update(['is_finish' => true]);
-                    }
-                    redirect('/kegiatans');
-                })
-        ];
-    }
-
 
     public function getUserRole()
     {
@@ -113,8 +86,77 @@ class PresensiKegiatan extends Page implements HasTable
         return [$role[0]->name, $daerah, $desa, $kelompok];
     }
 
+
+    public function savePresensi() {
+        $rekapData = DB::table('presensis')->join('kegiatans', 'presensis.kegiatan_id', '=', 'kegiatans.id')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->get(['kegiatans.tingkatan_kegiatan', 'kegiatans.detail_tingkatan','presensis.kegiatan_id' ,'mudamudis.daerah_id', 'mudamudis.desa_id', 'mudamudis.kelompok_id', 'mudamudis.jk', 'presensis.keterangan', 'presensis.kedatangan']);
+        $KelompokId = [];
+        $userRole = $this->getUserRole();
+
+        if($userRole[0] == 'MM Daerah') {
+            $KelompokId = DB::table('kelompoks')->join('desas', 'kelompoks.desa_id', '=', 'desas.id')->where('desas.daerah_id', $userRole[1]->id)->get(['desas.daerah_id', 'desas.id as desa_id', 'kelompoks.id as kelompok_id']);
+        } elseif($userRole[0] == 'MM Desa') {
+            $KelompokId = DB::table('kelompoks')->join('desas', 'kelompoks.desa_id', '=', 'desas.id')->where('desas.id', $userRole[2]->id)->get(['desas.daerah_id', 'desas.id as desa_id', 'kelompoks.id as kelompok_id']);
+        } elseif($userRole[0] == 'MM Kelompok') {
+            $KelompokId = DB::table('kelompoks')->join('desas', 'kelompoks.desa_id', '=', 'desas.id')->where('kelompoks.id', $userRole[3]->id)->first(['desas.daerah_id', 'desas.id as desa_id', 'kelompoks.id as kelompok_id']);
+        }
+        
+        foreach($KelompokId as $item) {
+            $hadirL = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'L')->where('keterangan', 'Hadir')->count();
+            $hadirP = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('keterangan', 'Hadir')->count();
+            $izinL = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'L')->where('keterangan', 'Izin')->count();
+            $izinP = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('keterangan', 'Izin')->count();
+            $alfaL = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'L')->where('keterangan', 'Alfa')->count();
+            $alfaP = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('keterangan', 'Alfa')->count();
+            $inTime = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('kedatangan', 'In Time')->count();
+            $onTime = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('kedatangan', 'On Time')->count();
+            $overTime = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('kedatangan', 'Overtime')->count();
+            $tidakDatang = $rekapData->where('daerah_id', $item->daerah_id)->where('desa_id', $item->desa_id)->where('kelompok_id', $item->kelompok_id)->where('jk', 'P')->where('kedatangan', 'Tidak Datang')->count();
+
+            $totalPeserta = $hadirL + $hadirP + $izinL + $izinP + $alfaL + $alfaP;
+
+            $resultRekap = [
+                'kegiatan_id' => $this->record->id,
+                'daerah_id' => $item->daerah_id,
+                'desa_id' => $item->desa_id,
+                'kelompok_id' => $item->kelompok_id,
+                'hadir_l' => $hadirL,
+                'hadir_p' => $hadirP,
+                'izin_l' => $izinL,
+                'izin_p' => $izinP,
+                'alfa_l' => $alfaL,
+                'alfa_p' => $alfaP,
+                'total_peserta' => $totalPeserta,
+                'in_time' => $inTime,
+                'on_time' => $onTime,
+                'over_time' => $overTime,
+                'tidak_datang' => $tidakDatang
+            ];
+            LaporanKegiatan::create($resultRekap);
+        }
+
+        DB::table('kegiatans')->where('id', $this->record->id)->update(['is_finish' => true]);
+        redirect('/kegiatans');
+    }
+
+    
+    public function getHeaderActions(): array
+    {
+        return [
+            ActionPage::make('save')
+                ->label('Tutup Presensi')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->modalHeading('Tutup Presensi')
+                ->modalDescription('Apakah Presensi sudah benar-benar selesai? Seluruh data akan disimpan & tidak dapat diubah lagi!')
+                ->action(function() {
+                    $this->savePresensi();
+                })
+        ];
+    }
+
     public function infolist(Infolist $infolist): Infolist
     {
+
         return $infolist
             ->record($this->record)
             ->schema([
@@ -128,9 +170,9 @@ class PresensiKegiatan extends Page implements HasTable
                                     ->iconColor('success')
                                     ->getStateUsing(function () {
                                         if ($this->record->kategori_peserta !== 'Keputrian') {;
-                                            $laki = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.sesi', $this->record->sesi_aktif)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'L')->count();
-                                            $perempuan = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.sesi', $this->record->sesi_aktif)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'P')->count();
-                                            $total = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('keterangan', 'Hadir')->count();
+                                            $laki = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'L')->count();
+                                            $perempuan = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'P')->count();
+                                            $total = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('keterangan', 'Hadir')->count();
                                             return <<<TEXT
                                             <div class="flex flex-row gap-3">
                                                 <span>Laki-laki: $laki</span>
@@ -140,7 +182,7 @@ class PresensiKegiatan extends Page implements HasTable
                                             TEXT;
                                         } else {
                                             $query = DB::table('presensis')
-                                                ->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)
+                                                ->where('kegiatan_id', $this->record->id)
                                                 ->where('keterangan', 'Hadir');
                                             $total = $query->count();
                                             return $total;
@@ -155,9 +197,9 @@ class PresensiKegiatan extends Page implements HasTable
                                     ->iconColor('warning')
                                     ->getStateUsing(function () {
                                         if ($this->record->kategori_peserta !== 'Keputrian') {;
-                                            $laki = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.sesi', $this->record->sesi_aktif)->where('presensis.keterangan', 'Izin')->where('mudamudis.jk', 'L')->count();
-                                            $perempuan = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.sesi', $this->record->sesi_aktif)->where('presensis.keterangan', 'Izin')->where('mudamudis.jk', 'P')->count();
-                                            $total = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('keterangan', 'Izin')->count();
+                                            $laki = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Izin')->where('mudamudis.jk', 'L')->count();
+                                            $perempuan = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Izin')->where('mudamudis.jk', 'P')->count();
+                                            $total = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('keterangan', 'Izin')->count();
                                             return <<<TEXT
                                             <div class="flex flex-row gap-3">
                                                 <span>Laki-laki: $laki</span>
@@ -166,10 +208,11 @@ class PresensiKegiatan extends Page implements HasTable
                                             </div>
                                             TEXT;
                                         } else {
-                                            $query = DB::table('presensis')
-                                                ->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)
-                                                ->where('keterangan', 'Izin');
-                                            $total = $query->count();
+                                            $hadir = DB::table('presensis')
+                                                ->where('kegiatan_id', $this->record->id)
+                                                ->where('hadir')->value('hadir');
+                                            // $hadir = JSON($hadir);
+                                            $total = $hadir;
                                             return $total;
                                         }
                                     })
@@ -190,7 +233,7 @@ class PresensiKegiatan extends Page implements HasTable
                                     ->label('Judul Kegiatan'),
                                 TextEntry::make('tempat_kegiatan')
                                     ->label('Tempat Kegiatan'),
-                                TextEntry::make('waktu_pelaksanaan')
+                                TextEntry::make('waktu_mulai')
                                     ->label('Waktu Pelaksanaan'),
                                 TextEntry::make('kategori_peserta')
                                     ->label('Kategori Peserta'),
@@ -201,84 +244,77 @@ class PresensiKegiatan extends Page implements HasTable
             ]);
     }
 
-    // public function getTabs(): array {
-    //     return [
-    //         'Data Peserta' => Tab::make('Data Peserta'),
-    //         'Data Registrasi' => Tab::make('Cobain')->query(fn (Builder $query) => $this->query($query, Registrasi::class)),
-    //     ];
-    // }
-
     public function table(Table $table): Table
     {
         $role = $this->getUserRole();
         $kegiatan = $this->record;
-        $data = '';
-        // dd(Carbon::parse($kegiatan->waktu_pelaksanaan) < Carbon::now());
+        $peserta = '';
+        // dd(Carbon::parse($kegiatan->waktu_mulai) < Carbon::now());
 
         if ($role[0] == 'MM Daerah') {
             if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
-                $data = Mudamudi::query()->where('daerah_id', '=', $role[1]->id);
+                $peserta = Mudamudi::query()->where('daerah_id', '=', $role[1]->id);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
             } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->whereNot('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $data = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('jk', 'P');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('jk', 'P');
             }
         } elseif ($role[0] == 'MM Desa') {
             if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
-                $data = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id);
+                $peserta = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
             } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('jk', 'P');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('jk', 'P');
             }
         } elseif ($role[0] == 'MM Kelompok') {
             if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
-                $data = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id);
+                $peserta = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
             } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->whereNot('status', 'LIKE', 'Pelajar%');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $data = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('jk', 'P');
+                $peserta = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('jk', 'P');
             }
         }
 
-        $create = $data;
+        $create = $peserta;
+
+        // Inisialisasi Peserta kedalam tabel presensi
         foreach ($create->get('id') as $id) {
-            if (!DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('sesi', $kegiatan->sesi_aktif)->where('mudamudi_id', $id->id)->exists()) {
+            if (!DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $id->id)->exists()) {
                 Presensi::create([
                     'kegiatan_id' => $kegiatan->id,
-                    'sesi' => $this->record->sesi_aktif,
                     'mudamudi_id' => $id->id,
-                    'keterangan' => 'Alfa',
                 ]);
             }
         }
 
         return $table
-            ->query($data)
+            ->query($peserta)
             ->columns([
                 TextColumn::make('kelompok.nm_kelompok')
                     ->searchable(),
@@ -296,9 +332,9 @@ class PresensiKegiatan extends Page implements HasTable
                         'Alfa' => 'danger',
                     })
                     ->getStateUsing(function (Mudamudi $record) {
-                        $data = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('mudamudi_id', $record->id);
-                        if ($data->exists()) {
-                            return $data->value('keterangan');
+                        $peserta = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id);
+                        if ($peserta->exists()) {
+                            return $peserta->value('keterangan');
                         } else {
                             return 'Alfa';
                         }
@@ -324,16 +360,11 @@ class PresensiKegiatan extends Page implements HasTable
                         $waktuKegiatan = '';
                         $onTime = '';
                         $kedatangan = '';
-                        // Penentu Waktu Pelaksanaan Sesi/Kegiatan
-                        if ($kegiatan->is_sesi) {
-                            $dateKegiatan = SesiKegiatan::query()->where('kegiatan_id', $kegiatan->id)->where('sesi', $kegiatan->sesi_aktif)->value('waktu_pelaksanaan');
-                            $dateOnTime = SesiKegiatan::query()->where('kegiatan_id', $kegiatan->id)->where('sesi', $kegiatan->sesi_aktif)->value('waktu_pelaksanaan');
-                            $waktuKegiatan = Carbon::parse($dateKegiatan);
-                            $onTime = Carbon::parse($dateOnTime)->addMinutes(15);
-                        } else {
-                            $waktuKegiatan = Carbon::parse($kegiatan->waktu_pelaksanaan);
-                            $onTime = Carbon::parse($this->record->waktu_pelaksanaan)->addMinutes(15);
-                        }
+
+                        // Penentu Waktu Mulai Kegiatan
+                        $waktuKegiatan = Carbon::parse($kegiatan->waktu_mulai);
+                        $onTime = Carbon::parse($this->record->waktu_mulai)->addMinutes(15);
+
                         // Penentuan Kategori Kedatangan
                         if ($now < $waktuKegiatan) {
                             $kedatangan = 'In Time';
@@ -343,8 +374,8 @@ class PresensiKegiatan extends Page implements HasTable
                             $kedatangan = 'Overtime';
                         }
 
-                        if (DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('sesi', $kegiatan->sesi_aktif)->where('mudamudi_id', $record->id)->exists()) {
-                            DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('sesi', $kegiatan->sesi_aktif)->where('mudamudi_id', $record->id)->update([
+                        if (DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->exists()) {
+                            DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->update([
                                 'keterangan' => 'Hadir',
                                 'kedatangan' => $kedatangan,
                                 'updated_at' => $now
@@ -352,7 +383,6 @@ class PresensiKegiatan extends Page implements HasTable
                         } else {
                             Presensi::create([
                                 'kegiatan_id' => $kegiatan->id,
-                                'sesi' => $kegiatan->sesi_aktif,
                                 'mudamudi_id' => $record->id,
                                 'keterangan' => 'Hadir',
                                 'kedatangan' => $kedatangan,
@@ -364,15 +394,14 @@ class PresensiKegiatan extends Page implements HasTable
                     ->color('warning')
                     ->icon('heroicon-o-information-circle')
                     ->action(function (Mudamudi $record) {
-                        if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('mudamudi_id', $record->id)->exists()) {
-                            DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('mudamudi_id', $record->id)->update([
+                        if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
+                            DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
                                 'keterangan' => 'Izin',
                                 'kedatangan' => 'Tidak Datang',
                             ]);
                         } else {
                             Presensi::create([
                                 'kegiatan_id' => $this->record->id,
-                                'sesi' => $this->record->sesi_aktif,
                                 'mudamudi_id' => $record->id,
                                 'keterangan' => 'Izin',
                                 'kedatangan' => 'Tidak Datang'
@@ -384,15 +413,14 @@ class PresensiKegiatan extends Page implements HasTable
                     ->color('danger')
                     ->icon('heroicon-o-x-circle')
                     ->action(function (Mudamudi $record) {
-                        if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('mudamudi_id', $record->id)->exists()) {
-                            DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('sesi', $this->record->sesi_aktif)->where('mudamudi_id', $record->id)->update([
+                        if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
+                            DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
                                 'keterangan' => 'Alfa',
                                 'kedatangan' => 'Tidak Datang',
                             ]);
                         } else {
                             Presensi::create([
                                 'kegiatan_id' => $this->record->id,
-                                'sesi' => $this->record->sesi_aktif,
                                 'mudamudi_id' => $record->id,
                                 'keterangan' => 'Alfa',
                                 'kedatangan' => 'Tidak Datang'
@@ -403,6 +431,8 @@ class PresensiKegiatan extends Page implements HasTable
             ->bulkActions([
                 // 
             ])
-            ->striped();
+            ->striped()
+            ->defaultPaginationPageOption(5);
     }
+
 }

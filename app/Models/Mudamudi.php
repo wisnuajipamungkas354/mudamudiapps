@@ -9,7 +9,9 @@ class Mudamudi extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    protected $guarded = ['id'];
+
+    public $incrementing = false;
 
     // Event "creating" untuk otomatis mengisi pengkodean id
     protected static function booted()
@@ -37,8 +39,8 @@ class Mudamudi extends Model
             $uniqueId= $lastIdNumber + 1;
         }
 
-        // Format ID unik menjadi tiga digit
-        $uniqueIdFormatted = str_pad($uniqueId, 3, '0', STR_PAD_LEFT);
+        // Format ID unik menjadi empat digit
+        $uniqueIdFormatted = str_pad($uniqueId, 4, '0', STR_PAD_LEFT);
 
         // Gabungkan tahun, bulan, dan ID unik untuk membuat ID lengkap
         return $yearMonth . $uniqueIdFormatted;

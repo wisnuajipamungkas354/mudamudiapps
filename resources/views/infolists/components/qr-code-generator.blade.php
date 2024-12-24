@@ -1,5 +1,6 @@
 <x-dynamic-component :component="$getEntryWrapperView()" :entry="$entry">
-    <div class="flex justify-center">
-        {!! QrCode::size(150)->generate(Request::path()); !!}
+    <div class="flex flex-col justify-center items-center">
+        {!! QrCode::size(150)->generate($getRecord()->id . ' | ' . $getRecord()->nama); !!}
+        <span class="text-center mt-2 font-semibold">MM-ID : {{ $getRecord()->id }}</span>
     </div>
 </x-dynamic-component>

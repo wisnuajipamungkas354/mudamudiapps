@@ -32,4 +32,9 @@ class Daerah extends Model
     {
         return $this->hasMany(ArusKeluar::class);
     }
+
+    public function laporanKegiatan()
+    {
+        return $this->hasMany(LaporanKegiatan::class);
+    }
 }

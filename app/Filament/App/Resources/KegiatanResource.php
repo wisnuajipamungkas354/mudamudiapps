@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\KegiatanResource\Pages;
 use App\Filament\App\Resources\KegiatanResource\RelationManagers;
 use App\Models\Kegiatan;
+use App\Models\Mudamudi;
 use App\Models\SesiKegiatan;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
@@ -50,15 +51,20 @@ class KegiatanResource extends Resource
                             ->label('Tempat Kegiatan')
                             ->placeholder('Masukkan Tempat Kegiatan')
                             ->required(),
-                        Forms\Components\DateTimePicker::make('waktu_pelaksanaan')
-                            ->label('Waktu Pelaksanaan')
-                            ->placeholder('Masukkan Waktu Pelaksanaan')
+                        Forms\Components\DateTimePicker::make('waktu_mulai')
+                            ->label('Waktu Mulai')
+                            ->placeholder('Masukkan Waktu Mulai')
                             ->displayFormat('d/m/Y')
+                            ->minDate(date('Y-m-d H:i'))
                             ->seconds(false)
+                            ->live()
                             ->required(),
-                        Forms\Components\Select::make('asal_data_peserta')
-                            ->label('Asal Data Peserta')
-                            ->options(['Database Muda-Mudi' => 'Database Muda-Mudi'])
+                        Forms\Components\DateTimePicker::make('waktu_selesai')
+                            ->label('Waktu Selesai')
+                            ->placeholder('Masukkan Waktu Selesai')
+                            ->displayFormat('H:i d/m/Y')
+                            ->minDate(fn(Get $get) => $get('waktu_mulai'))
+                            ->seconds(false)
                             ->required(),
                         Forms\Components\Select::make('kategori_peserta')
                             ->label('Kategori Peserta')
@@ -73,18 +79,14 @@ class KegiatanResource extends Resource
                             ])
                             ->live()
                             ->preload()
+                            ->required(),
+                        Forms\Components\TextInput::make('kode_kegiatan')
+                            ->label('Kode Kegiatan')
+                            ->placeholder('Masukkan Kode (6 digit)')
+                            ->autocomplete(false)
                             ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\Checkbox::make('is_sesi')
-                            ->live()
-                            ->label('Apakah kegiatan ini memiliki lebih dari satu kali sesi presensi ?'),
-                        Forms\Components\TextInput::make('jml_sesi')
-                            ->label('Jumlah Sesi')
-                            ->placeholder('Masukkan Jumlah Sesi (Angka Saja)')
-                            ->numeric()
-                            ->maxValue(24)
-                            ->minValue(2)
-                            ->visible(fn(Get $get) => $get('is_sesi') == true ? true : false),
+                            ->minLength(6)
+                            ->maxLength(6)
                     ])->columns(2)
             ]);
     }
@@ -93,16 +95,13 @@ class KegiatanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('waktu_pelaksanaan')
+                Tables\Columns\TextColumn::make('waktu_mulai')
                     ->label('Waktu')
                     ->dateTime('H:i d/m/Y'),
                 Tables\Columns\TextColumn::make('nm_kegiatan')
                     ->label('Judul Kegiatan'),
                 Tables\Columns\TextColumn::make('tempat_kegiatan')
                     ->label('Tempat'),
-                Tables\Columns\TextColumn::make('asal_data_peserta')
-                    ->label('Asal Data')
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('tingkatan_kegiatan')
                     ->label('Tingkatan Kegiatan')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -111,6 +110,8 @@ class KegiatanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_peserta')
                     ->label('Kategori Peserta'),
+                Tables\Columns\TextColumn::make('kode_kegiatan')
+                    ->label('Kode Kegiatan')
             ])
             ->filters([
                 //
@@ -118,57 +119,9 @@ class KegiatanResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('buka_presensi')
                     ->label('Buka Presensi')
-                    ->url(fn(Kegiatan $record) =>  'kegiatans/' . $record->id . "/presensi")
+                    ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')
                     ->icon('heroicon-o-clipboard-document-check')
-                    ->visible(fn(Kegiatan $record) => $record->is_sesi || $record->is_finish ? false : true),
-                Tables\Actions\Action::make('buka_sesi')
-                    ->label(fn(Kegiatan $record) => 'Buka Sesi ' . $record->sesi_aktif)
-                    ->requiresConfirmation()
-                    ->modalHeading('Waktu Pelaksanaan Sesi')
-                    ->modalDescription('Mohon Amal Sholih mengisi waktu sesi yang akan dilaksanakan! (Untuk Nama Sesi Opsional)')
-                    ->modalWidth(MaxWidth::ThreeExtraLarge)
-                    ->modalSubmitActionLabel('Simpan & Mulai Sesi')
-                    ->form([
-                        Fieldset::make((fn(Kegiatan $record) => 'Sesi ' . $record->sesi_aktif))
-                            ->schema([
-                                TextInput::make('nm_sesi')
-                                    ->label('Nama Sesi (Opsional)')
-                                    ->placeholder('Contoh: Registrasi/Sesi 1')
-                                    ->formatStateUsing(function (Get $get, Kegiatan $record) {
-                                        if (DB::table('sesi_kegiatans')->where('kegiatan_id', $record->id)->where('sesi', $get('sesi'))->exists()) {
-                                            return SesiKegiatan::query()->where('kegiatan_id', $record->id)->where('sesi', $get('sesi'))->value('nm_sesi');
-                                        } else {
-                                            return '';
-                                        }
-                                    }),
-                                DateTimePicker::make('waktu_pelaksanaan')
-                                    ->label('Waktu Mulai Sesi')
-                                    ->placeholder('Masukkan Waktu Mulai Sesi')
-                                    ->seconds(false)
-                                    ->required()
-                            ])->columns(2)
-                    ])
-                    ->icon('heroicon-o-clipboard-document-check')
-                    ->visible(fn(Kegiatan $record) => $record->is_sesi && !$record->is_finish ? true : false)
-                    ->action(function (array $data, Kegiatan $record) {
-                        $data['nm_sesi'] == null ? $data['nm_sesi'] = "Sesi " . $record->sesi_aktif : $data['nm_sesi'];
-                        if (!DB::table('sesi_kegiatans')->where('kegiatan_id', $record->id)->where('sesi', $record->sesi_aktif)->exists()) {
-                            SesiKegiatan::create([
-                                'kegiatan_id' => $record->id,
-                                'sesi' => $record->sesi_aktif,
-                                'nm_sesi' => $data['nm_sesi'],
-                                'waktu_pelaksanaan' => $data['waktu_pelaksanaan']
-                            ]);
-                        }
-                        return redirect('kegiatans/' . $record->id . "/presensi");
-                    })
-                    ->url(function (Kegiatan $record) {
-                        if (DB::table('sesi_kegiatans')->where('kegiatan_id', $record->id)->where('sesi', $record->sesi_aktif)->exists()) {
-                            return 'kegiatans/' . $record->id . "/presensi";
-                        } else {
-                            return null;
-                        }
-                    }),
+                    ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
                 Tables\Actions\Action::make('lihat_rekap')
                     ->label('Lihat Rekapitulasi')
                     ->color('success')

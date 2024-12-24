@@ -37,16 +37,23 @@ class ViewMudamudiapp extends ViewRecord
         ->schema([
             ViewEntry::make('')
             ->view('infolists.components.qr-code-generator')
-            ->columnSpan(1)
-            ,
+            ->columnSpan([
+                'sm' => 4,
+                'lg' => 1,
+                'xl' => 1,
+            ]),
             Section::make('Sambung')
             ->schema([
                 Infolists\Components\TextEntry::make('daerah.nm_daerah'),
                 Infolists\Components\TextEntry::make('desa.nm_desa'),
                 Infolists\Components\TextEntry::make('kelompok.nm_kelompok'),
             ])
-            ->columns(3)
-            ->columnSpan(3),
+            ->columns(4)
+            ->columnSpan([
+                'sm' => 4,
+                'lg' => 3,
+                'xl' => 3,
+            ]),
             Section::make('Data Diri')
             ->schema([
                 Infolists\Components\TextEntry::make('nama'),
