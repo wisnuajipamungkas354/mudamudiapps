@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-USE SimpleSoftwareIO\QrCode\Facades\QrCode;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class MudamudiappResource extends Resource
 {
@@ -312,6 +312,15 @@ class MudamudiappResource extends Resource
                     ->options(['L' => 'Laki-laki', 'P' => 'Perempuan'])
             ])
             ->actions([
+                Tables\Actions\Action::make('qr-download')
+                ->label('QR-Code')
+                ->url(function(Mudamudi $record): string {
+                 $encoded = base64_encode(QrCode::format('png')->size(200)->margin(2)->generate($record->id . ' | ' . $record->nama));
+                 $url = 'data:image/png;base64, ' . $encoded;
+                 return $url;
+                })
+                ->extraAttributes(fn(Mudamudi $record) => ['download' => $record->nama])
+                ->icon('heroicon-s-qr-code'),
                 Tables\Actions\ViewAction::make()
                 ->label('Detail'),
                 Tables\Actions\EditAction::make(),
