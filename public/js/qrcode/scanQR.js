@@ -9,7 +9,6 @@ const STOP_CAM = 'stop-camera';
 const html5QrCode = new Html5Qrcode(/* element id */ "camera-canvas");
 let devices;
 let cameraId;
-let currentValue;
 
 document.addEventListener('DOMContentLoaded', async() => {
   try {
@@ -62,13 +61,9 @@ document.addEventListener(START_CAM, () => {
           const inputChange = document.querySelector('#reader input');
           scannedQrText.removeAttribute('hidden');
           
-          if(currentValue !== decodedText) {
-            currentValue = decodedText;
-            scannedQrText.innerText = decodedText.substring(11);
-            inputChange.setAttribute('wire:change',  `hadir('${currentValue}')`);
-            inputChange.dispatchEvent(new Event('change'));
-          }
-          return;
+          scannedQrText.innerText = decodedText.substring(11);
+          inputChange.setAttribute('wire:change',  `hadir('${decodedText}')`);
+          inputChange.dispatchEvent(new Event('change'));
         },
         (errorMessage) => {throw new Error('Gagal')}
       );
