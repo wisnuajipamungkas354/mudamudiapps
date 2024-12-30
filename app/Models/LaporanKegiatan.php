@@ -14,19 +14,4 @@ class LaporanKegiatan extends Model
     {
         return $this->belongsTo(Kegiatan::class);
     }
-
-    public function daerah()
-    {
-        return $this->belongsTo(Daerah::class);
-    }
-
-    public function desa()
-    {
-        return $this->belongsTo(Desa::class);
-    }
-    
-    public function kelompok()
-    {
-        return $this->belongsTo(Kelompok::class);
-    }
 }

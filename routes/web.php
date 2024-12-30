@@ -12,3 +12,5 @@ Route::post('/registrasi', [RegistrasiController::class, 'store']);
 Route::get('/pengurus-daerah/registrasi-pengurus', [RegistrasiPengurusController::class, 'index']);
 Route::get('/pengurus-daerah/registrasi-pengurus/getOptions/{tingkatan}', [RegistrasiPengurusController::class, 'getOptions']);
 Route::post('/pengurus-daerah/registrasi-pengurus', [RegistrasiPengurusController::class, 'store']);
+
+Route::get('/phpinfo', fn () => phpinfo());

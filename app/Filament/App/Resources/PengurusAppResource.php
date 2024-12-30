@@ -86,6 +86,12 @@ class PengurusAppResource extends Resource
                     ->searchable(),
                 TextColumn::make('no_hp')
                     ->label('Nomor HP')
+                    ->url(function(Pengurus $record) {
+                        $url = 'https://wa.me/+62';
+                        $phoneNumber = $record->no_hp;
+                        $formattedPhoneNumber = substr($phoneNumber, 1); // 0
+                        return $url . $formattedPhoneNumber;
+                    })
                     ->searchable()
             ])
             ->filters([

@@ -17,15 +17,8 @@ return new class extends Migration
             $table->foreign('kegiatan_id')->references('id')->on('kegiatans')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->foreignId('daerah_id')->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->foreignId('desa_id')->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
-            $table->foreignId('kelompok_id')->constrained()
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+            $table->string('tingkatan_laporan');
+            $table->string('detail_tingkatan');
             $table->integer('hadir_l');
             $table->integer('hadir_p');
             $table->integer('izin_l');
@@ -37,6 +30,12 @@ return new class extends Migration
             $table->integer('on_time');
             $table->integer('over_time');
             $table->integer('tidak_datang');
+            $table->integer('sakit');
+            $table->integer('kerja');
+            $table->integer('kuliah');
+            $table->integer('sekolah');
+            $table->integer('acara_keluarga');
+            $table->integer('acara_mendesak');
             $table->timestamps();
         });
     }
