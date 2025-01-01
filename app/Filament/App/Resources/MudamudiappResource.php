@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Storage;
 
 class MudamudiappResource extends Resource
 {
@@ -315,9 +316,9 @@ class MudamudiappResource extends Resource
                 Tables\Actions\Action::make('qr-download')
                 ->label('QR-Code')
                 ->url(function(Mudamudi $record): string {
-                 $encoded = base64_encode(QrCode::format('png')->size(200)->margin(2)->generate($record->id . ' | ' . $record->nama));
-                 $url = 'data:image/png;base64, ' . $encoded;
-                 return $url;
+                    $path = 'public/qr-images/mudamudi/'.$record->id . '.png';
+                    $url = Storage::url($path);
+                    return $url;
                 })
                 ->extraAttributes(fn(Mudamudi $record) => ['download' => $record->nama])
                 ->icon('heroicon-s-qr-code'),
