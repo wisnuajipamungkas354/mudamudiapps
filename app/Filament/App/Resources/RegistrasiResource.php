@@ -154,6 +154,7 @@ class RegistrasiResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Reject All')
+                        ->visible(fn() => Auth::user()->roles[0]->name == 'MM Daerah' ? false : true)
                         ->modalHeading('Hapus Data Registrasi')
                         ->modalDescription('Apakah kamu yakin ingin menghapus data registrasi ini ?')
                         ->modalSubmitActionLabel('Hapus')
@@ -161,6 +162,7 @@ class RegistrasiResource extends Resource
                     Tables\Actions\BulkAction::make('Apply All')
                         ->icon('heroicon-s-check')
                         ->color('success')
+                        ->visible(fn() => Auth::user()->roles[0]->name == 'MM Daerah' ? false : true)
                         ->requiresConfirmation()
                         ->modalHeading('Konfirmasi Data')
                         ->modalDescription('Apakah kamu yakin data yang diregistrasi adalah benar Muda-mudimu ?')

@@ -339,7 +339,8 @@ class MudamudiappResource extends Resource
                                 'Menikah' => 'Menikah',
                                 'Meninggal' => 'Meninggal',
                                 'Pindah Sambung Dalam Daerah' => 'Pindah Sambung Dalam Daerah',
-                                'Pindah Sambung Keluar Daerah' => 'Pindah Sambung Keluar Daerah'
+                                'Pindah Sambung Keluar Daerah' => 'Pindah Sambung Keluar Daerah',
+                                'Data Duplikat' => 'Data Duplikat',
                             ])
                             ->live()
                             ->required(),
@@ -366,15 +367,7 @@ class MudamudiappResource extends Resource
                     ->modalCancelActionLabel('Batal')
                     ->action(function (array $data, Mudamudi $record) {
                         $dataRecord = $record->toArray();
-                        ArusKeluar::create([
-                            'daerah_id' => $dataRecord['daerah_id'],
-                            'desa_id' => $dataRecord['desa_id'],
-                            'kelompok_id' => $dataRecord['kelompok_id'],
-                            'nama' => $dataRecord['nama'],
-                            'jk' => $dataRecord['jk'],
-                            'usia' => $dataRecord['usia'],
-                            'keterangan' => $data['keterangan'],
-                        ]);
+
                         if ($data['keterangan'] == 'Pindah Sambung Dalam Daerah') {
                             Registrasi::create([
                                 'daerah_id' => $dataRecord['daerah_id'],
@@ -391,14 +384,30 @@ class MudamudiappResource extends Resource
                                 'siap_nikah' => $dataRecord['siap_nikah'],
                             ]);
                         }
+
+                        if($data['keterangan'] != 'Data Duplikat') {
+                            ArusKeluar::create([
+                                'daerah_id' => $dataRecord['daerah_id'],
+                                'desa_id' => $dataRecord['desa_id'],
+                                'kelompok_id' => $dataRecord['kelompok_id'],
+                                'nama' => $dataRecord['nama'],
+                                'jk' => $dataRecord['jk'],
+                                'usia' => $dataRecord['usia'],
+                                'keterangan' => $data['keterangan'],
+                            ]);
+                        }
+
+                        // Delete QR-Code Images before record has been deleted
+                        Storage::delete('public/qr-images/mudamudi/' . $record->id . '.png');
+
                         $record->delete();
+
                         Notification::make()
                             ->success()
                             ->title('Berhasil Dihapus')
                             ->send();
                     })
             ])
-            
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),

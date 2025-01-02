@@ -18,7 +18,7 @@ class CreateQrCodeSeeder extends Seeder
         
         $getDataMM = Mudamudi::all();
         foreach($getDataMM as $data) {
-            $generateQr = QrCode::format('png')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate($data->id . ' | ' . $data->nama);
+            $generateQr = QrCode::format('png')->style('round')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate($data->id . ' | ' . $data->nama);
             Storage::disk('public')->put('qr-images/mudamudi/' . $data->id . '.png', $generateQr);
         }
     }

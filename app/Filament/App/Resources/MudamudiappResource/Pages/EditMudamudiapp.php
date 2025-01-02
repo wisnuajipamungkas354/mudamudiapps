@@ -8,6 +8,8 @@ use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class EditMudamudiapp extends EditRecord
 {
@@ -34,5 +36,9 @@ class EditMudamudiapp extends EditRecord
 
         // Menyimpan data riwayat
         $riwayat->save();
+
+        // Generate Ulang QR-Code
+        $generateQr = QrCode::format('png')->style('round')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate($record->id . ' | ' . $record->nama);
+        Storage::disk('public')->put('qr-images/mudamudi/' . $record->id . '.png', $generateQr);
     }
 }
