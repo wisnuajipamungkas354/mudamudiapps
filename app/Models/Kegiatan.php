@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class Kegiatan extends Model
 {
@@ -18,12 +20,12 @@ class Kegiatan extends Model
     {
         static::creating(function ($model) {
             // Panggil fungsi untuk generate id
-            $model->id = self::generateUniqueId();
+            $model->id = self::generateUniqueId($model);
         });
     }
 
     // Fungsi untuk generate ID unik
-    public static function generateUniqueId()
+    public static function generateUniqueId($model)
     {
         // Ambil tahun dan bulan saat ini
         $dateYearMonth = date('dym'); // Dua digit tanggal tahun & bulan (contoh: 312411)
@@ -44,7 +46,13 @@ class Kegiatan extends Model
         $uniqueIdFormatted = str_pad($uniqueId, 3, '0', STR_PAD_LEFT);
 
         // Gabungkan tahun, bulan, dan ID unik untuk membuat ID lengkap
-        return strval($dateYearMonth) . strval($uniqueIdFormatted) . $uniqueStr;
+        $finalId = strval($dateYearMonth) . strval($uniqueIdFormatted) . $uniqueStr;
+
+        // Create QR-Code Images
+        $generateQr = QrCode::format('png')->style('round')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate($finalId . ' | ' . $model->nm_kegiatan);
+        Storage::disk('public')->put('qr-images/kegiatan/' . $finalId . '.png', $generateQr);
+
+        return $finalId;
     }
 
     public static function generateRandomString($length) {

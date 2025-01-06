@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class KegiatanResource extends Resource
 {
@@ -111,12 +112,23 @@ class KegiatanResource extends Resource
                 Tables\Columns\TextColumn::make('kategori_peserta')
                     ->label('Kategori Peserta'),
                 Tables\Columns\TextColumn::make('kode_kegiatan')
-                    ->label('Kode Kegiatan')
+                    ->label('Kode Kegiatan'),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('qr_download')
+                    ->label('QR-Code')
+                    ->url(function(Kegiatan $record): string {
+                        $path = 'public/qr-images/kegiatan/'.$record->id . '.png';
+                        $url = Storage::url($path);
+                        return $url;
+                    })
+                    ->extraAttributes(fn(Kegiatan $record) => ['download' => $record->nm_kegiatan])
+                    ->icon('heroicon-s-qr-code')
+                    ->color('warning')
+                    ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
                 Tables\Actions\Action::make('buka_presensi')
                     ->label('Buka Presensi')
                     ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')

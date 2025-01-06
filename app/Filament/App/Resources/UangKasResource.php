@@ -205,7 +205,8 @@ class UangKasResource extends Resource
                 ]),
             ])
             ->emptyStateHeading('Belum ada catatan kas')
-            ->emptyStateDescription('Klik Tambah Data untuk menambah catatan keuangan');
+            ->emptyStateDescription('Klik Tambah Data untuk menambah catatan keuangan')
+            ->striped();
     }
 
     public static function getRelations(): array

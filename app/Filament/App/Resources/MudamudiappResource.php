@@ -413,7 +413,8 @@ class MudamudiappResource extends Resource
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
             ])
-            ->emptyStateHeading('Tidak Ada Data Muda-Mudi');
+            ->emptyStateHeading('Tidak Ada Data Muda-Mudi')
+            ->striped();
     }
 
     public static function getRelations(): array

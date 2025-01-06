@@ -59,8 +59,13 @@ class PresensiKegiatan extends Page implements HasTable
             abort(401);
         }
 
-        if($this->record->is_finish == true) {
-            abort(403, 'MAAF, PRESENSI SUDAH DITUTUP!');
+        if($this->record->is_finish) {
+            abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');
+        }
+
+        if(strtotime($this->record->waktu_selesai) <= strtotime(now())){
+
+            abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
         }
     }
 
@@ -372,6 +377,14 @@ class PresensiKegiatan extends Page implements HasTable
 
     public function table(Table $table): Table
     {
+        if($this->record->is_finish) {
+            abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');
+        }
+
+        if(strtotime($this->record->waktu_selesai) <= strtotime(now())){
+            abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
+        }
+
         $peserta = Presensi::query()->where('kegiatan_id', $this->record->id)->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
 
         return $table
