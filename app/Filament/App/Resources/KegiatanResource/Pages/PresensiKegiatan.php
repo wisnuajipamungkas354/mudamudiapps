@@ -64,8 +64,7 @@ class PresensiKegiatan extends Page implements HasTable
         }
 
         if(strtotime($this->record->waktu_selesai) <= strtotime(now())){
-
-            abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
+            $this->savePresensi();
         }
     }
 
@@ -383,7 +382,15 @@ class PresensiKegiatan extends Page implements HasTable
         }
 
         if(strtotime($this->record->waktu_selesai) <= strtotime(now())){
-            abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
+            $this->savePresensi();
+
+            Notification::make()
+            ->title('Presensi telah Berhasil Disimpan!')
+            ->color('success')
+            ->success()
+            ->body('Rekap Presensi sudah disimpan!')
+            ->seconds(5)
+            ->send();
         }
 
         $peserta = Presensi::query()->where('kegiatan_id', $this->record->id)->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');

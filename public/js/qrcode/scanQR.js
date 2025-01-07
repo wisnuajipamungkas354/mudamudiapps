@@ -1,5 +1,7 @@
+const buttonRequestAccessCam = document.getElementById('request-access-cam');
 const buttonStartScan = document.getElementById('start-scanning-cam');
 const buttonStopScan = document.getElementById('stop-scanning-cam');
+const textSelectCamera = document.getElementById('text-select-camera');
 const selectListDevices = document.getElementById('select-device-list');
 const scannedQrText = document.getElementById('scanned-qr-text');
 
@@ -10,7 +12,11 @@ const html5QrCode = new Html5Qrcode(/* element id */ "camera-canvas");
 let devices;
 let cameraId;
 
-document.addEventListener('DOMContentLoaded', async() => {
+document.addEventListener('DOMContentLoaded', () => {
+  buttonStartScan.setAttribute('hidden', 'hidden');
+})
+
+buttonRequestAccessCam.addEventListener('click', async() => {
   try {
     /**
      * devices would be an array of objects of type:
@@ -30,23 +36,28 @@ document.addEventListener('DOMContentLoaded', async() => {
       selectListDevices.removeAttribute('hidden');
 
       cameraId = devices[0].id;
+
+      buttonRequestAccessCam.setAttribute('hidden', 'hidden');
+      buttonStartScan.removeAttribute('hidden');
     }
   } catch(e) {
-
+      buttonStartScan.setAttribute('hidden', 'hidden');
   }
 });
 
 buttonStartScan.addEventListener('click', () => {
   buttonStartScan.setAttribute('hidden', 'hidden');
   buttonStopScan.removeAttribute('hidden');
-  selectListDevices.setAttribute('disabled', 'disabled');
+  selectListDevices.setAttribute('hidden', 'hidden');
+  textSelectCamera.setAttribute('hidden', 'hidden');
   document.dispatchEvent(new Event(START_CAM));
 });
 
 buttonStopScan.addEventListener('click', () => {
   buttonStopScan.setAttribute('hidden', 'hidden');
   buttonStartScan.removeAttribute('hidden');
-  selectListDevices.removeAttribute('disabled');
+  selectListDevices.removeAttribute('hidden');
+  textSelectCamera.removeAttribute('hidden');
   document.dispatchEvent(new Event(STOP_CAM));
 });
 
@@ -62,7 +73,7 @@ document.addEventListener(START_CAM, () => {
           scannedQrText.removeAttribute('hidden');
           
           scannedQrText.innerText = decodedText.substring(11);
-          inputChange.setAttribute('wire:change',  `hadir('${decodedText}')`);
+          inputChange.setAttribute('wire:change',  `hadir("${decodedText}")`);
           inputChange.dispatchEvent(new Event('change'));
         },
         (errorMessage) => {throw new Error('Gagal')}

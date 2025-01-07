@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/app.css')
+@endpush
 <x-filament-panels::page>
     <div>
         {{ $this->infolist }}
@@ -8,6 +11,10 @@
             {{ $this->table }}
         </div>
     </div>
+    <hr>
     <h3 class="font-semibold text-xl text-center">List Registrasi</h3>
     <livewire:registrasi-kegiatan-table :kegiatan='$this->record' />
 </x-filament-panels::page>
+@push('script')
+@vite('resources/js/app.js')
+@endpush

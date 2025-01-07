@@ -50,8 +50,8 @@ class JkWidget extends ChartWidget
             $dataMumi = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->get();
         }
         
-        $data[0] = $dataMumi->where('daerah_id', $role[1]->id)->where('jk', 'L')->count();
-        $data[1] = $dataMumi->where('daerah_id', $role[1]->id)->where('jk', 'P')->count();
+        $data[0] = $dataMumi->where('jk', 'L')->count();
+        $data[1] = $dataMumi->where('jk', 'P')->count();
 
         return [
             'datasets' => [
