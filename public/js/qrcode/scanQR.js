@@ -1,8 +1,8 @@
-const buttonRequestAccessCam = document.getElementById('request-access-cam');
 const buttonStartScan = document.getElementById('start-scanning-cam');
 const buttonStopScan = document.getElementById('stop-scanning-cam');
 const textSelectCamera = document.getElementById('text-select-camera');
 const selectListDevices = document.getElementById('select-device-list');
+const textScannedCamera = document.getElementById('text-scanned-camera');
 const scannedQrText = document.getElementById('scanned-qr-text');
 
 const START_CAM = 'start-camera';
@@ -12,11 +12,7 @@ const html5QrCode = new Html5Qrcode(/* element id */ "camera-canvas");
 let devices;
 let cameraId;
 
-document.addEventListener('DOMContentLoaded', () => {
-  buttonStartScan.setAttribute('hidden', 'hidden');
-})
-
-buttonRequestAccessCam.addEventListener('click', async() => {
+document.addEventListener('DOMContentLoaded', async() => {
   try {
     /**
      * devices would be an array of objects of type:
@@ -36,18 +32,16 @@ buttonRequestAccessCam.addEventListener('click', async() => {
       selectListDevices.removeAttribute('hidden');
 
       cameraId = devices[0].id;
-
-      buttonRequestAccessCam.setAttribute('hidden', 'hidden');
-      buttonStartScan.removeAttribute('hidden');
     }
   } catch(e) {
-      buttonStartScan.setAttribute('hidden', 'hidden');
+      // 
   }
 });
 
 buttonStartScan.addEventListener('click', () => {
   buttonStartScan.setAttribute('hidden', 'hidden');
   buttonStopScan.removeAttribute('hidden');
+  textScannedCamera.removeAttribute('hidden');
   selectListDevices.setAttribute('hidden', 'hidden');
   textSelectCamera.setAttribute('hidden', 'hidden');
   document.dispatchEvent(new Event(START_CAM));
@@ -55,6 +49,8 @@ buttonStartScan.addEventListener('click', () => {
 
 buttonStopScan.addEventListener('click', () => {
   buttonStopScan.setAttribute('hidden', 'hidden');
+  scannedQrText.setAttribute('hidden', 'hidden');
+  textScannedCamera.setAttribute('hidden', 'hidden');
   buttonStartScan.removeAttribute('hidden');
   selectListDevices.removeAttribute('hidden');
   textSelectCamera.removeAttribute('hidden');
@@ -69,7 +65,7 @@ document.addEventListener(START_CAM, () => {
       html5QrCode.start(cameraId, 
         {fps: 15, qrbox: {width: 250, height: 250}}, 
         (decodedText, decodedResult) => {
-          const inputChange = document.querySelector('#reader input');
+          const inputChange = document.getElementById('scanned-value');
           scannedQrText.removeAttribute('hidden');
           
           scannedQrText.innerText = decodedText.substring(11);

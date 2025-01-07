@@ -512,4 +512,8 @@ class PresensiKegiatan extends Page implements HasTable
             ->defaultPaginationPageOption(5)
             ->emptyStateHeading('Belum ada yang hadir');
     }
+
+    public function refreshComponent() {
+        
+    }
 }

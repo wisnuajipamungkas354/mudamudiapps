@@ -8,14 +8,13 @@
     </div>
 
     <div class="flex flex-col items-center">
-        <span id="text-select-camera" class="font-semibold pt-2" hidden>Pilih Kamera</span>
-        <select id="select-device-list" class="rounded-lg" hidden required></select>
-        <span id="scanned-qr-text" hidden></span>
+        <span id="text-select-camera" class="font-semibold pt-2">Pilih Kamera</span>
+        <select id="select-device-list" class="rounded-lg" required></select>
+        <span id="text-scanned-camera" class="font-semibold pt-2" hidden>Terscan :</span>
+        <span id="scanned-qr-text" class="my-3 bg-green-200 rounded-lg py-1 px-3" hidden></span>
         
-        <button id="request-access-cam" type="button" class="bg-blue-600 p-2 text-white rounded-lg text-sm mt-3"><x-heroicon-o-camera width="1.2rem" class="inline pb-1" /> Minta Izin Akses Kamera</button>
-        <button id="start-scanning-cam" type="button" class="bg-blue-600 p-2 text-white rounded-lg text-sm mt-3"><x-heroicon-o-camera width="1.2rem" class="inline pb-1" hidden /> Mulai Scan</button>
+        <button id="start-scanning-cam" type="button" class="bg-blue-600 p-2 text-white rounded-lg text-sm mt-3"><x-heroicon-o-camera width="1.2rem" class="inline pb-1" /> Mulai Scan</button>
         <button id="stop-scanning-cam" type="button" class="bg-red-600 p-2 text-white rounded-lg text-sm mt-3" hidden><x-heroicon-s-stop width="1.2rem" class="inline pb-1"/> Stop Scanning</button>
+        <input id="scanned-value" type="text" hidden/>
     </div>
-
-    <input type="text" hidden/>
 </section>
