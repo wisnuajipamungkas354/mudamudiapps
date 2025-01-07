@@ -260,10 +260,11 @@ class PresensiKegiatan extends Page implements HasTable
             $this->createLaporanKegiatan($desa, $rekapDataPresensi, 'desa_id', 'MM Desa', 'nm_desa');
 
         } else {
-            $loopKelompok = Kelompok::query()->where('id', $role['kelompok_id'])->count();
+            $dataKelompok = Kelompok::query()->where('id', $role['kelompok_id'])->get(['id as kelompok_id', 'nm_kelompok'])->toArray();            
+
+            // Create Laporan Ke Kelompok-kelompok
+            $this->createLaporanKegiatan($dataKelompok, $rekapDataPresensi, 'kelompok_id', 'MM Kelompok', 'nm_kelompok');
         }
-        
-        // Memasukkan Laporan Kegiatan ke masing-masing kelompok
         
 
         DB::table('kegiatans')->where('id', $this->record->id)->update(['is_finish' => true]);

@@ -49,7 +49,7 @@ class Kegiatan extends Model
         $finalId = strval($dateYearMonth) . strval($uniqueIdFormatted) . $uniqueStr;
 
         // Create QR-Code Images
-        $generateQr = QrCode::format('png')->style('round')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate($finalId . ' | ' . $model->nm_kegiatan);
+        $generateQr = QrCode::format('png')->style('round')->merge('/public/img/logo.png', .25)->size(300)->margin(1)->errorCorrection('H')->generate(url('presensi-mudamudi/' . $finalId));
         Storage::disk('public')->put('qr-images/kegiatan/' . $finalId . '.png', $generateQr);
 
         return $finalId;

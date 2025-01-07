@@ -38,50 +38,71 @@ class StatusWidget extends ChartWidget
         return [$role[0]->name, $daerah, $desa, $kelompok];
     }
 
+    public function categoriesCounter($data) {
+        $tenagaSB = $data->filter(fn($val, $key) => str_contains($val, 'Tenaga'))->count();
+
+        $mahasiswa = $data->filter(fn($val, $key) => str_contains($val, 'Mahasiswa'))->count();
+        
+        $kuliahKerja = $data->filter(fn($val, $key) => str_contains($val, 'Kuliah'))->count();
+
+        $wirausaha = $data->filter(fn($val, $key) => str_contains($val, 'Wirausaha') )->count();
+
+        $karyawan = $data->filter(fn($val, $key) => str_contains($val, 'Karyawan'))->count();
+
+        $pencaker = $data->filter(fn($val, $key) => str_contains($val, 'Pencari'))->count();
+
+        return [
+            'Tenaga SB' => $tenagaSB,
+            'Mahasiswa' => $mahasiswa,
+            'Kuliah Kerja' => $kuliahKerja,
+            'Wirausaha' => $wirausaha,
+            'Karyawan' => $karyawan,
+            'Pencaker' => $pencaker,
+        ];
+    }
+
     protected function getData(): array
     {
         $role = $this->getUserRole();
-        $data = [];
+        $dataMumi = '';
+        $dataChart = [];
+
         if ($role[0] == 'MM Daerah') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Tenaga%')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Kuliah%')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Mahasiswa%')->count();
-            $data[3] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Wirausaha%')->count();
-            $data[4] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Karyawan%')->count();
-            $data[5] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('status', 'LIKE', 'Pencari Kerja %')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1]->id)->get();
         } elseif ($role[0] == 'MM Desa') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Tenaga%')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Kuliah%')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Mahasiswa%')->count();
-            $data[3] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Wirausaha%')->count();
-            $data[4] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Karyawan%')->count();
-            $data[5] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('status', 'LIKE', 'Pencari Kerja %')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->get();
         } elseif ($role[0] == 'MM Kelompok') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Tenaga%')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Kuliah%')->count();
-            $data[2] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Mahasiswa%')->count();
-            $data[3] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Wirausaha%')->count();
-            $data[4] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Karyawan%')->count();
-            $data[5] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('status', 'LIKE', 'Pencari Kerja %')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->get();
         }
+
+        $countedData = $this->categoriesCounter($dataMumi);
+
+        $dataChart[0] = $countedData['Pencaker'];
+        $dataChart[1] = $countedData['Karyawan'];
+        $dataChart[2] = $countedData['Wirausaha'];
+        $dataChart[3] = $countedData['Kuliah Kerja'];
+        $dataChart[4] = $countedData['Mahasiswa'];
+        $dataChart[5] = $countedData['Tenaga SB'];
+
         return [
             'datasets' => [
                 [
                     'label' => 'Total Muda-Mudi',
                     'axis' => 'y',
-                    'data' => $data,
+                    'data' => $dataChart,
                     'backgroundColor' => [
                         'rgb(82, 157, 255)',
-                        'rgb(255, 140, 0)',
-                        'rgb(219, 0, 183)',
-                        'rgb(255, 205, 86)',
-                        'rgb(54, 162, 235)',
-                        'rgb(255, 99, 132)',
+                        'rgb(0, 209, 66)',
+                        'rgb(255, 139, 15)',
+                        'rgb(255, 53, 53)',
+                        'rgb(255, 33, 137)',
+                        'rgb(123, 0, 205)',
+                        
                     ],
                     'borderWidth' => '0',
                 ],
             ],
-            'labels' => ['Tenaga Sabilillah (SB)', 'Kuliah & Kerja', 'Mahasiswa', 'Wirausaha/Freelance', 'Karyawan/Pegawai', 'Pencari Kerja'],
+            'labels' => ['Pencari Kerja', 'Karyawan', 'Wirausaha', 'Kuliah Kerja', 'Mahasiswa', 'Tenaga SB'],
         ];
     }
 

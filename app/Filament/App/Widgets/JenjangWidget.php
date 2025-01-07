@@ -38,41 +38,50 @@ class JenjangWidget extends ChartWidget
         return [$role[0]->name, $daerah, $desa, $kelompok];
     }
 
+    public function categoriesCounter($data) {
+        $all = $data->count();
+
+        $smp = $data->where('status', '=', 'Pelajar SMP')->count();
+
+        $smak = $data->filter(function($value, $key) {
+            return $value['status'] == 'Pelajar SMA' || $value['status'] == 'Pelajar SMK';
+        })->count();
+
+        $lepasPelajar = $data->where('status', '!=', 'Pelajar SMA')->where('status', '!=', 'Pelajar SMK')->where('status', '!=', 'Pelajar SMP')->count();
+
+        return [
+            'All' => $all,
+            'SMP' => $smp,
+            'SMA/K' => $smak,
+            'Lepas Pelajar' => $lepasPelajar,
+        ];
+    }
+
     protected function getData(): array
     {
         $role = $this->getUserRole();
-        $data = [];
-        $total = '';
-        $smp = '';
-        $sma = '';
-        $lepasPelajar = '';
-        if ($role[0] == 'MM Daerah') {
-            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMP')->count();
-            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('status', 'Pelajar SMK')->count();
-            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->whereNot('status', 'LIKE', 'Pelajar %')->count();
-            $total = Mudamudi::query()->where('daerah_id', $role[1])->count();
-            
-        } elseif ($role[0] == 'MM Desa') {
-            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMP')->count();
-            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[2])->where('desa_id', $role[2])->where('status', 'Pelajar SMK')->count();
-            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->whereNot('status', 'LIKE', 'Pelajar %')->count();
-            $total = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->count();
-        } elseif ($role[0] == 'MM Kelompok') {
-            $smp = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMP')->count();
-            $sma = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMA')->orWhere('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->where('status', 'Pelajar SMK')->count();
-            $lepasPelajar = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->whereNot('status', 'LIKE', 'Pelajar %')->count();
-            $total = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->count();
-        }
+        $dataMumi = '';
+        $dataChart = [];
 
-        $data[0] = round(($smp / $total) * 100);
-        $data[1] = round(($sma / $total) * 100);
-        $data[2] = round(($lepasPelajar / $total) * 100);
+        if ($role[0] == 'MM Daerah') {
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1])->get();
+        } elseif ($role[0] == 'MM Desa') {
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->get();
+        } elseif ($role[0] == 'MM Kelompok') {
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1])->where('desa_id', $role[2])->where('kelompok_id', $role[3])->get();
+        }
+        
+        $countedData = $this->categoriesCounter($dataMumi);
+
+        $dataChart[0] = round(($countedData['SMP'] / $countedData['All']) * 100);
+        $dataChart[1] = round(($countedData['SMA/K'] / $countedData['All']) * 100);
+        $dataChart[2] = round(($countedData['Lepas Pelajar'] / $countedData['All']) * 100);
 
         return [
             'datasets' => [
                 [
                     'label' => 'Status',
-                    'data' => $data,
+                    'data' => $dataChart,
                     'backgroundColor' => [
                         'rgb(54, 162, 235)',
                         'rgb(255, 99, 132)',

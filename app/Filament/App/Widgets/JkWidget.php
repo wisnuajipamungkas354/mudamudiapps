@@ -40,16 +40,18 @@ class JkWidget extends ChartWidget
     {
         $role = $this->getUserRole();
         $data = [];
+        $dataMumi = '';
+
         if ($role[0] == 'MM Daerah') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('jk', 'L')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[1]->id)->where('jk', 'P')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1]->id)->get(); 
         } elseif ($role[0] == 'MM Desa') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('jk', 'L')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('jk', 'P')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->get();
         } elseif ($role[0] == 'MM Kelompok') {
-            $data[0] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('jk', 'L')->count();
-            $data[1] = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->where('jk', 'P')->count();
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', $role[3]->id)->get();
         }
+        
+        $data[0] = $dataMumi->where('daerah_id', $role[1]->id)->where('jk', 'L')->count();
+        $data[1] = $dataMumi->where('daerah_id', $role[1]->id)->where('jk', 'P')->count();
 
         return [
             'datasets' => [

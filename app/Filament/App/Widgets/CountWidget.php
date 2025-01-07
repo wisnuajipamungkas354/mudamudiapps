@@ -17,57 +17,63 @@ class CountWidget extends BaseWidget
 
     protected static ?string $pollingInterval = '10s';
 
+    public function categoriesCounter($data) {
+        $all = $data->count();
+
+        $smp = $data->where('status', '=', 'Pelajar SMP')->count();
+
+        $smak = $data->filter(function($value, $key) {
+            return $value['status'] == 'Pelajar SMA' || $value['status'] == 'Pelajar SMK';
+        })->count();
+
+        $mahasiswa = $data->filter(function($value, $key) {
+            return str_contains($value['status'], 'Mahasiswa') || str_contains($value['status'], 'Kuliah');
+        })->count();
+
+        $lepasPelajar = $data->where('status', '!=', 'Pelajar SMA')->where('status', '!=', 'Pelajar SMK')->where('status', '!=', 'Pelajar SMP')->count();
+
+        $siapNikah = $data->where('siap_nikah', '=', 'Siap')->count();
+
+        return [
+            'All' => $all,
+            'SMP' => $smp,
+            'SMA/K' => $smak,
+            'Mahasiswa' => $mahasiswa,
+            'Lepas Pelajar' => $lepasPelajar,
+            'Siap Nikah' => $siapNikah,
+        ];
+    }
+
     protected function getStats(): array
     {
-
         $role = $this->getUserRole();
+        $dataMumi = '';
+
         if ($role[0] == 'MM Daerah') {
-            return [
-                Stat::make('Total Muda-Mudi', Mudamudi::query()->where('daerah_id', $role[1]->id)->count())
-                    ->chart([4, 2, 8])
-                    ->chartColor('success'),
-                Stat::make('SMP', Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('status', '=', 'Pelajar SMP')->count())
-                    ->chart([8, 5, 10])->chartColor('danger'),
-                Stat::make('SMA/K', Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('status', '=', 'Pelajar SMA')->orWhere('daerah_id', '=', $role[1]->id)->where('status', '=', 'Pelajar SMK')->count())
-                    ->chart([10, 8, 7])->chartColor('info'),
-                Stat::make('Mahasiswa', Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('status', 'LIKE', 'Mahasiswa %')->orWhere('daerah_id', '=', $role[1]->id)->where('status', 'LIKE', 'Kuliah %')->count())
-                    ->chart([8, 3, 4, 6])->chartColor('primary'),
-                Stat::make('Lepas Pelajar', Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->whereNot('status', 'LIKE', 'Pelajar %')->count())
-                    ->chart([8, 5, 4, 6])->chartColor('gray'),
-                Stat::make('Siap Nikah', Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('siap_nikah', '=', 'Siap')->count())
-                    ->chart([2, 5, 4, 6])->chartColor('warning'),
-            ];
+            $dataMumi = Mudamudi::query()->where('daerah_id', $role[1]->id)->get();
         } elseif ($role[0] == 'MM Desa') {
-            return [
-                Stat::make('Total Muda-Mudi', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->count())
-                    ->chart([4, 2, 8])->chartColor('success'),
-                Stat::make('SMP', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', '=', 'Pelajar SMP')->count())
-                    ->chart([8, 5, 10])->chartColor('danger'),
-                Stat::make('SMA/K', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', '=', 'Pelajar SMA')->orWhere('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', '=', 'Pelajar SMK')->count())
-                    ->chart([10, 8, 7])->chartColor('info'),
-                Stat::make('Mahasiswa', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Mahasiswa %')->orWhere('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Kuliah %')->count())
-                    ->chart([8, 3, 4, 6])->chartColor('primary'),
-                Stat::make('Lepas Pelajar', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'Pelajar %')->count())
-                    ->chart([8, 5, 4, 6])->chartColor('gray'),
-                Stat::make('Siap Nikah', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('siap_nikah', '=', 'Siap')->count())
-                    ->chart([2, 5, 4, 6])->chartColor('warning'),
-            ];
+            $dataMumi = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->get();
         } elseif ($role[0] == 'MM Kelompok') {
-            return [
-                Stat::make('Total Muda-Mudi', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->count())
-                    ->chart([4, 2, 8])->chartColor('success'),
-                Stat::make('SMP', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', '=', 'Pelajar SMP')->count())
-                    ->chart([8, 5, 10])->chartColor('danger'),
-                Stat::make('SMA/K', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Pelajar%')->whereNot('status', '=', 'Pelajar SMP')->count())
-                    ->chart([10, 8, 7])->chartColor('info'),
-                Stat::make('Mahasiswa', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Mahasiswa%')->orWhere('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('status', 'LIKE', 'Kuliah %')->count())
-                    ->chart([8, 3, 4, 6])->chartColor('primary'),
-                Stat::make('Lepas Pelajar', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->whereNot('status', 'LIKE', 'Pelajar%')->count())
-                    ->chart([8, 5, 4, 6])->chartColor('gray'),
-                Stat::make('Siap Nikah', Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->where('siap_nikah', '=', 'Siap')->count())
-                    ->chart([2, 5, 4, 6])->chartColor('warning'),
-            ];
+            $dataMumi = Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', $role[2]->id)->where('kelompok_id', '=', $role[3]->id)->get();
         }
+        
+        $countedData = $this->categoriesCounter($dataMumi);
+
+        return [
+            Stat::make('Total Muda-Mudi', $countedData['All'])
+                ->chart([4, 2, 8])
+                ->chartColor('success'),
+            Stat::make('SMP', $countedData['SMP'])
+                ->chart([8, 5, 10])->chartColor('danger'),
+            Stat::make('SMA/K', $countedData['SMA/K'])
+                ->chart([10, 8, 7])->chartColor('info'),
+            Stat::make('Mahasiswa', $countedData['Mahasiswa'])
+                ->chart([8, 3, 4, 6])->chartColor('primary'),
+            Stat::make('Lepas Pelajar', $countedData['Lepas Pelajar'])
+                ->chart([8, 5, 4, 6])->chartColor('gray'),
+            Stat::make('Siap Nikah', $countedData['Siap Nikah'])
+                ->chart([2, 5, 4, 6])->chartColor('warning'),
+        ];
     }
 
     public function getUserRole()
