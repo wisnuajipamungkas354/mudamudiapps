@@ -22,6 +22,8 @@
     <body class="antialiased bg-slate-100">
         {{ $slot }}
  
+        @livewire('notifications')
+        
         @filamentScripts
         @vite('resources/js/app.js')
     </body>

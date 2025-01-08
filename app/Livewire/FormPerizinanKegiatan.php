@@ -13,6 +13,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 
 class FormPerizinanKegiatan extends Component implements HasForms
@@ -145,8 +146,21 @@ class FormPerizinanKegiatan extends Component implements HasForms
             'ket_izin' => $this->data['ket_izin'],
         ];
 
-        Presensi::create($formData);
-        return redirect('/');
+        if(Presensi::where('kegiatan_id', '=', $this->kegiatan->id)->where('mudamudi_id', '=', $this->data['id'])->exists()) {
+            Presensi::where('kegiatan_id', '=', $this->kegiatan->id)->where('mudamudi_id', '=', $this->data['id'])->update($formData);
+        } else {
+            Presensi::create($formData);
+        }
+
+        redirect('/presensi-mudamudi/' . $this->kegiatan->id);
+
+        Notification::make('coba')
+        ->title('Form Perizinan Berhasil Dikirim!')
+        ->body('Semoga Alloh memberikan kesehatan, kelancaran & kebarokahan!')
+        ->success()
+        ->color('success')
+        ->seconds(6)
+        ->send();
     }
 
     public function render()
