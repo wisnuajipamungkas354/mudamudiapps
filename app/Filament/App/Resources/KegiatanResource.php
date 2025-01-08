@@ -118,6 +118,44 @@ class KegiatanResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('share_link')
+                    ->label('Umumin')
+                    ->icon('heroicon-o-chat-bubble-bottom-center-text')
+                    ->url(function(Kegiatan $record): string {
+                        setlocale(LC_ALL, 'id-ID', 'id_ID');
+                        $waktu = strftime("%A, %d %B %Y", strtotime($record->waktu_mulai));
+                        $jam = date('H:i', strtotime($record->waktu_mulai));
+                        $linkIzin = url('presensi-mudamudi/' . $record->id);
+                        $url = "https://api.whatsapp.com/send?text=🙏🏻 السلام عليكم ورحمة الله وبركاته 🙏🏻
+%0A
+%0A📢 Menginformasikan
+%0ASehubungan dengan akan dilaksanakannya :
+%0A
+%0A
+💾 *{$record->nm_kegiatan}*
+%0A
+%0A📆 {$waktu}
+%0A⏰ {$jam} s/d Selesai
+%0A📍 {$record->tempat_kegiatan}
+%0A👳🏻‍♀🧕 _{$record->kategori_peserta}_
+%0A
+%0A*NB:*
+%0A- Membawa sodaqoh lemparan
+%0A- Amal Sholih supaya diusahakan hadir tepat waktu
+%0A
+%0A*Link Izin*
+%0A_Adapun jika berhalangan hadir mohon amal sholih mengisi link perizinan berikut :_
+%0A{$linkIzin}
+%0A
+%0ADitetapi dan Dikerjakan karna Allah, semoga Allah paring kesemangatan, aman, selamat, lancar, sukses dan barokah
+%0A
+%0A
+الحمدلله جزاكم الله خيرا 😊🙏🏻";
+                        
+                        return $url;
+                    })
+                    ->color('success')
+                    ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
                 Tables\Actions\Action::make('qr_download')
                     ->label('QR-Code')
                     ->url(function(Kegiatan $record): string {
@@ -129,10 +167,10 @@ class KegiatanResource extends Resource
                     ->icon('heroicon-s-qr-code')
                     ->color('warning')
                     ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
-                Tables\Actions\Action::make('buka_presensi')
-                    ->label('Buka Presensi')
+                Tables\Actions\Action::make('presensi')
+                    ->label('Presensi')
                     ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')
-                    ->icon('heroicon-o-clipboard-document-check')
+                    ->icon('heroicon-o-book-open')
                     ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
                 Tables\Actions\Action::make('lihat_rekap')
                     ->label('Lihat Rekapitulasi')
