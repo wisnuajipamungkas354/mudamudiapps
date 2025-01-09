@@ -41,6 +41,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On; 
 
 class PresensiKegiatan extends Page implements HasTable
 {
@@ -393,7 +394,7 @@ class PresensiKegiatan extends Page implements HasTable
             ->send();
         }
 
-        $peserta = Presensi::query()->where('kegiatan_id', $this->record->id)->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
+        $peserta = Presensi::query()->where('kegiatan_id', '=', $this->record->id)->whereNot('keterangan', '=', 'Izin')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
 
         return $table
             ->query($peserta)
@@ -508,12 +509,7 @@ class PresensiKegiatan extends Page implements HasTable
                 // 
             ])
             ->striped()
-            ->poll('5s')
             ->defaultPaginationPageOption(5)
             ->emptyStateHeading('Belum ada yang hadir');
-    }
-
-    public function refreshComponent() {
-        
     }
 }

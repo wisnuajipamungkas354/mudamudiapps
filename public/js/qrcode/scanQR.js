@@ -65,12 +65,15 @@ document.addEventListener(START_CAM, () => {
       html5QrCode.start(cameraId, 
         {fps: 15, qrbox: {width: 250, height: 250}}, 
         (decodedText, decodedResult) => {
+          const presensiTable = document.getElementById('presensi-table');
           const inputChange = document.getElementById('scanned-value');
           scannedQrText.removeAttribute('hidden');
           
           scannedQrText.innerText = decodedText.substring(11);
           inputChange.setAttribute('wire:change',  `hadir("${decodedText}")`);
-          inputChange.dispatchEvent(new Event('change'));
+          inputChange.dispatchEvent(new Event('change')); 
+          presensiTable.setAttribute('wire:click',  `$refresh`);  
+          presensiTable.dispatchEvent(new Event('click'));
         },
         (errorMessage) => {throw new Error('Gagal')}
       );

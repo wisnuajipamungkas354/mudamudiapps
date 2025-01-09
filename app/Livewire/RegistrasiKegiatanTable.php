@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -58,6 +59,10 @@ class RegistrasiKegiatanTable extends Component implements HasForms, HasTable
     
         return $table
             ->query(Registrasi::query())
+            ->headerActions([
+                Action::make('refresh')
+                    ->label('Refresh')
+            ])
             ->columns([
                 TextColumn::make('kelompok.nm_kelompok')
                 ->label('Kelompok'),

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Filament\App\Resources\KegiatanResource\Pages\PresensiKegiatan;
 use App\Models\Presensi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,8 @@ class ScanQrPresensi extends Component
                 'kedatangan' => $kedatangan,
             ]);
         }
+
+        $this->dispatch('refresh-table')->to(PresensiKegiatan::class);
     }
 
     public function render()
