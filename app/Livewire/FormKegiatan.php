@@ -8,6 +8,7 @@ use Livewire\Component;
 class FormKegiatan extends Component
 {
     public $kegiatan;
+    public $title = 'Presensi Kegiatan';
 
     public function mount(Kegiatan $kegiatan) 
     {

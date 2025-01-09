@@ -7,7 +7,8 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="viewport" content="width=device-width, initial-scale=1">
  
-        <title>{{ config('app.name') }}</title>
+        <title>{{ $title }}</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('img/logo.png') }}">
  
         <style>
             [x-cloak] {

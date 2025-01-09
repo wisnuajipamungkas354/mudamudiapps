@@ -1,4 +1,5 @@
 <div class="flex flex-row justify-center items-center">
+    <x-slot:title>{{ $this->title }}</x-slot:title>
     <section class="flex flex-col justify-center bg-white p-10 rounded-md shadow-xl m-4 w-full md:w-2/4 lg:2/5">
         <x-filament::icon-button icon="heroicon-c-arrow-long-left" href="/presensi-mudamudi/{{ $this->kegiatan->id }}" tag="a" label="Filament" size="lg" color="gray" wire:navigate/>
         <h1 class="text-2xl text-center font-semibold my-3">{{ $this->kegiatan->nm_kegiatan }}</h1>
@@ -13,12 +14,12 @@
 
         @if($this->form->getState('search')['id'] !== null)
         <div class="mt-3 flex flex-col justify-center items-center">
-            <h3 class="text-center font-semibold">QR-Code</h3>
+            <h3 class="text-center font-bold">QR-Code</h3>
                 <p class="my-2 text-center">Tunjukkan QR-Code ini ke tim registrasi untuk melakukan presensi!</p>
                 <img src="{{ Storage::url('public/qr-images/mudamudi/' . $this->form->getState()['id'] . '.png'); }}" />
                 <x-filament::button color="info" href="{{ Storage::url('public/qr-images/mudamudi/' . $this->form->getState()['id']. '.png'); }}" tag="a" download="{{ $this->form->getState()['nama']}}.png" class="my-2">
                 <x-heroicon-o-qr-code width="1.3rem" class="inline"/>
-                    Download QR-Code
+                    Simpan QR-Code
                 </x-filament::button>
             </div>
         @endif

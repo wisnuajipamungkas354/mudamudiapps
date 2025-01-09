@@ -1,4 +1,5 @@
 <div class="flex flex-row justify-center items-center">
+    <x-slot:title>{{ $this->title }}</x-slot:title>
     <section class="flex flex-col justify-center bg-white p-10 rounded-md shadow-xl m-4 w-full md:w-2/4 lg:2/5">
         <x-filament::icon-button icon="heroicon-c-arrow-long-left" href="/presensi-mudamudi/{{ $this->kegiatan->id }}" tag="a" label="Filament" size="lg" color="gray" wire:navigate/>
         <h1 class="text-2xl text-center font-semibold my-3">Form Perizinan {{ $this->kegiatan->nm_kegiatan }}</h1>

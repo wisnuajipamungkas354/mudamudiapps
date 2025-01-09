@@ -125,7 +125,7 @@ class KegiatanResource extends Resource
                         setlocale(LC_ALL, 'id-ID', 'id_ID');
                         $waktu = strftime("%A, %d %B %Y", strtotime($record->waktu_mulai));
                         $jam = date('H:i', strtotime($record->waktu_mulai));
-                        $linkIzin = url('presensi-mudamudi/' . $record->id);
+                        $linkPresensi = url('presensi-mudamudi/' . $record->id);
                         $url = "https://api.whatsapp.com/send?text=🙏🏻 السلام عليكم ورحمة الله وبركاته 🙏🏻
 %0A
 %0A📢 Menginformasikan
@@ -143,9 +143,11 @@ class KegiatanResource extends Resource
 %0A- Membawa sodaqoh lemparan
 %0A- Amal Sholih supaya diusahakan hadir tepat waktu
 %0A
-%0A*Link Izin*
-%0A_Adapun jika berhalangan hadir mohon amal sholih mengisi link perizinan berikut :_
-%0A{$linkIzin}
+%0A*Link Presensi*
+%0A_Adapun link presensi kegiatan dapat diakses melalui link dibawah ini :_
+%0A{$linkPresensi}
+%0A
+%0A_Jika *berhalangan hadir*, mohon amal sholih bisa mengisi *form perizinan* pada link presensi diatas._
 %0A
 %0ADitetapi dan Dikerjakan karna Allah, semoga Allah paring kesemangatan, aman, selamat, lancar, sukses dan barokah
 %0A
@@ -172,12 +174,12 @@ class KegiatanResource extends Resource
                     ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')
                     ->icon('heroicon-o-book-open')
                     ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
-                Tables\Actions\Action::make('lihat_rekap')
-                    ->label('Lihat Rekapitulasi')
-                    ->color('success')
-                    ->icon('heroicon-o-arrow-trending-up')
-                    ->url('/rekapitulasi-kegiatan')
-                    ->visible(fn(Kegiatan $record) => $record->is_finish ? true : false),
+                // Tables\Actions\Action::make('lihat_rekap')
+                //     ->label('Lihat Rekapitulasi')
+                //     ->color('success')
+                //     ->icon('heroicon-o-arrow-trending-up')
+                //     ->url('/rekapitulasi-kegiatan')
+                //     ->visible(fn(Kegiatan $record) => $record->is_finish ? true : false),
                 Tables\Actions\DeleteAction::make()
                     ->label('Hapus')
                     ->modalHeading('Hapus Kegiatan')

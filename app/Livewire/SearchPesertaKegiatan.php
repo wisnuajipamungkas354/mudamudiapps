@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Kegiatan;
 use App\Models\Mudamudi;
+use Carbon\Carbon;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -19,12 +20,17 @@ class SearchPesertaKegiatan extends Component implements HasForms
     
     public ?array $data = [];
     public $kegiatan;
+    public $title = 'Presensi Kehadiran QR';
     
     public function mount(Kegiatan $kegiatan): void
     {
         setlocale(LC_ALL, 'id-ID', 'id_ID');
         $this->form->fill();
         $this->kegiatan = $kegiatan;
+
+        if(Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(-30) >= Carbon::now()){
+            abort(403, 'Mohon Maaf Presensi Belum Dibuka!');
+        }
 
         if($this->kegiatan->is_finish) {
             abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');
@@ -68,18 +74,23 @@ class SearchPesertaKegiatan extends Component implements HasForms
                     }),
                 TextInput::make('id')
                     ->label('ID')
+                    ->placeholder('Terisi otomatis')
                     ->readOnly(),
                 TextInput::make('nama')
                     ->label('Nama Lengkap')
+                    ->placeholder('Terisi otomatis')
                     ->readOnly(),
                 TextInput::make('jk')
                     ->label('Jenis Kelamin')
+                    ->placeholder('Terisi otomatis')
                     ->readOnly(),
                 TextInput::make('status')
                     ->label('Status')
+                    ->placeholder('Terisi otomatis')
                     ->readOnly(),
                 TextInput::make('kelompok')
                     ->label('Kelompok')
+                    ->placeholder('Terisi otomatis')
                     ->readOnly(),
             ])
             ->statePath('data');

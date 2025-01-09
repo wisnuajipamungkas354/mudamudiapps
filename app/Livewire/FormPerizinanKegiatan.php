@@ -22,6 +22,7 @@ class FormPerizinanKegiatan extends Component implements HasForms
 
     public ?array $data = [];
     public $kegiatan;
+    public $title = 'Form Perizinan';
 
     public function mount(Kegiatan $kegiatan): void
     {
