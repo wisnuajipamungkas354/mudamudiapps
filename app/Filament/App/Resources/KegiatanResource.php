@@ -7,6 +7,7 @@ use App\Filament\App\Resources\KegiatanResource\RelationManagers;
 use App\Models\Kegiatan;
 use App\Models\Mudamudi;
 use App\Models\SesiKegiatan;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
@@ -173,7 +174,17 @@ class KegiatanResource extends Resource
                     ->label('Presensi')
                     ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')
                     ->icon('heroicon-o-book-open')
-                    ->visible(fn(Kegiatan $record) => $record->is_finish ? false : true),
+                    ->visible(function(Kegiatan $record) {
+                        if(Carbon::parse($record->waktu_mulai)->addMinutes(-30) > Carbon::now()){
+                            return false;
+                        }
+
+                        if($record->is_finish) {
+                            return false;
+                        } else {
+                            return true;
+                        }
+                    }),
                 // Tables\Actions\Action::make('lihat_rekap')
                 //     ->label('Lihat Rekapitulasi')
                 //     ->color('success')
