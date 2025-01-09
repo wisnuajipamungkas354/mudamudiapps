@@ -67,13 +67,19 @@ document.addEventListener(START_CAM, () => {
         (decodedText, decodedResult) => {
           const presensiTable = document.getElementById('presensi-table');
           const inputChange = document.getElementById('scanned-value');
+          const scannedQrTextP = document.querySelector('#scanned-qr-text p');
+          const loadingIndicator = document.getElementById('loading-indicator');
           scannedQrText.removeAttribute('hidden');
+          loadingIndicator.classList.replace('hidden', 'inline');
+          scannedQrTextP.innerText = decodedText.substring(11);
           
-          scannedQrText.innerText = decodedText.substring(11);
-          inputChange.setAttribute('wire:change',  `hadir("${decodedText}")`);
-          inputChange.dispatchEvent(new Event('change')); 
-          presensiTable.setAttribute('wire:click',  `$refresh`);  
-          presensiTable.dispatchEvent(new Event('click'));
+          setTimeout(() => {
+            inputChange.setAttribute('wire:change',  `hadir("${decodedText}")`);
+            inputChange.dispatchEvent(new Event('change'));
+            presensiTable.setAttribute('wire:click',  `$refresh`);  
+            presensiTable.dispatchEvent(new Event('click'));
+            loadingIndicator.classList.replace('inline', 'hidden');
+          }, 3500);
         },
         (errorMessage) => {throw new Error('Gagal')}
       );
