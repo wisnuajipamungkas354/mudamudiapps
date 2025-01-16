@@ -140,7 +140,12 @@ class PresensiKegiatan extends Page implements HasTable
                 'acara_keluarga' => $acaraKeluarga,
                 'acara_mendesak' => $acaraMendesak
             ];
-            LaporanKegiatan::create($resultRekap);
+
+            if(!LaporanKegiatan::where('kegiatan_id', '=', $this->record->id)->where('tingkatan_laporan', '=', $tingkatan_laporan)->where('detail_tingkatan', '=', $item[$nmTingkatan])->exists()){
+                LaporanKegiatan::create($resultRekap);
+            } else {
+                LaporanKegiatan::where('kegiatan_id', '=', $this->record->id)->where('tingkatan_laporan', '=', $tingkatan_laporan)->where('detail_tingkatan', '=', $item[$nmTingkatan])->update($resultRekap);
+            }
         }
     }
 

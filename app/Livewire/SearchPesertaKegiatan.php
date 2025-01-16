@@ -65,10 +65,17 @@ class SearchPesertaKegiatan extends Component implements HasForms
                     ->afterStateUpdated(function(Set $set, $state) {
                         $resultData = Mudamudi::with('kelompok')->where('id', '=', $state)->first();
                         $kelompok = $resultData?->getRelations('kelompok');
-                        
+                        $jk = '';
+
+                        if($resultData?->jk == 'L') {
+                            $jk = 'Laki-laki';
+                        } elseif($resultData?->jk == 'P') {
+                            $jk = 'Perempuan';
+                        }
+                                                
                         $set('id', $state ?? null);
                         $set('nama', $resultData->nama ?? null);
-                        $set('jk', $resultData?->jk == 'L' ? 'Laki-laki' : 'Perempuan');
+                        $set('jk', $jk);
                         $set('status', $resultData->status ?? null);
                         $set('kelompok', $kelompok['kelompok']->nm_kelompok ?? null);
                     }),

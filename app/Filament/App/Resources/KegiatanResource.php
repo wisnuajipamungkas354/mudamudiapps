@@ -36,6 +36,7 @@ class KegiatanResource extends Resource
     protected static ?string $navigationGroup = 'Presensi';
 
     protected static ?string $navigationLabel = 'Kegiatan';
+    
     protected static ?int $navigationSort = 1;
 
 

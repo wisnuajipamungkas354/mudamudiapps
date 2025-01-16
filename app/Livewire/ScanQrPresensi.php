@@ -43,9 +43,11 @@ class ScanQrPresensi extends Component
             DB::table('presensis')->where('kegiatan_id', $this->kegiatan->id)->where('mudamudi_id', $id)->update([
                 'keterangan' => 'Hadir',
                 'kedatangan' => $kedatangan,
+                'kategori_izin' => null,
+                'ket_izin' => null,
                 'updated_at' => $now
             ]);
-        } else {
+        } elseif(DB::table('mudamudis')->where('id', $id)->exists()) {
             Presensi::create([
                 'kegiatan_id' => $this->kegiatan->id,
                 'mudamudi_id' => $id,
