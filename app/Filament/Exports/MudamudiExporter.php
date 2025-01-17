@@ -6,10 +6,47 @@ use App\Models\Mudamudi;
 use Filament\Actions\Exports\ExportColumn;
 use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
+use OpenSpout\Common\Entity\Style\Border;
+use OpenSpout\Common\Entity\Style\BorderPart;
+use OpenSpout\Common\Entity\Style\CellAlignment;
+use OpenSpout\Common\Entity\Style\CellVerticalAlignment;
+use OpenSpout\Common\Entity\Style\Color;
+use OpenSpout\Common\Entity\Style\Style;
+use OpenSpout\Writer\XLSX\Options;
 
 class MudamudiExporter extends Exporter
 {
     protected static ?string $model = Mudamudi::class;
+
+    public function getOptions(): array
+    {
+
+        return [
+            (new Options)
+            ->setColumnWidthForRange(40, 1, 12),
+        ];
+    }
+    
+    public function getXlsxHeaderCellStyle(): ?Style
+    {
+        return (new Style())
+            ->setFontBold()
+            ->setFontSize(12)
+            ->setFontName('Times New Roman')
+            ->setFontColor(Color::BLACK)
+            ->setBackgroundColor(Color::BLUE)
+            ->setCellAlignment(CellAlignment::CENTER)
+            ->setCellVerticalAlignment(CellVerticalAlignment::CENTER)
+            ->setBorder(new Border(new BorderPart(Border::BOTTOM, Color::BLACK, Border::WIDTH_THIN, Border::STYLE_SOLID)));
+    }
+
+    public function getXlsxCellStyle(): ?Style
+    {
+        return (new Style())
+            ->setFontSize(11)
+            ->setFontName('Times New Roman')
+            ->setShouldWrapText(false);
+    }
 
     public static function getColumns(): array
     {
@@ -51,4 +88,5 @@ class MudamudiExporter extends Exporter
 
         return $body;
     }
+
 }

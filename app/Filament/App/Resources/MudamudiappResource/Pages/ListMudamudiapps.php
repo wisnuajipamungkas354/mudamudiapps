@@ -51,8 +51,8 @@ class ListMudamudiapps extends ListRecords
                 ->badge(Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->count()),
                 'SMP' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('daerah_id', '=', $role[1]->id)->where('status', '=', 'Pelajar SMP'))
                 ->badge(Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('status', '=', 'Pelajar SMP')->count()),
-                'SMA/K' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('daerah_id', '=', $role[1]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', '=', 'Pelajar SMP')->latest())
-                ->badge(Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', '=', 'Pelajar SMP')->count()),
+                'SMA/K' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('daerah_id', '=', $role[1]->id)->whereIn('status', ['Pelajar SMA', 'Pelajar SMK'])->latest())
+                ->badge(Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->whereIn('status', ['Pelajar SMA', 'Pelajar SMK'])->count()),
                 'Mahasiswa' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('daerah_id', '=', $role[1]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%')->latest())
                 ->badge(Mudamudi::query()->where('daerah_id', '=', $role[1]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%')->count()),
                 'Lepas Pelajar' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('daerah_id', '=', $role[1]->id)->whereNot('status', 'LIKE', 'Pelajar %'))
@@ -64,8 +64,8 @@ class ListMudamudiapps extends ListRecords
                     ->badge(Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->count()),
                 'SMP' => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', '=', 'Pelajar SMP'))
                     ->badge(Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', '=', 'Pelajar SMP')->count()),
-                'SMA/K' => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', '=', 'Pelajar SMP'))
-                    ->badge(Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->where('status', 'LIKE', 'Pelajar %')->whereNot('status', '=', 'Pelajar SMP')->count()),
+                'SMA/K' => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereIn('status', ['Pelajar SMA', 'Pelajar SMK']))
+                    ->badge(Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereIn('status', ['Pelajar SMA', 'Pelajar SMK'])->count()),
                 'Mahasiswa' => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%'))
                     ->badge(Mudamudi::query()->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%')->count()),
                 'Lepas Pelajar' => Tab::make()->modifyQueryUsing(fn(Builder $query) => $query->where('daerah_id', '=', $role[2]->daerah_id)->where('desa_id', '=', $role[2]->id)->whereNot('status', 'LIKE', 'Pelajar %'))
