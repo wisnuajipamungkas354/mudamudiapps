@@ -157,7 +157,7 @@ class PresensiKegiatan extends Page implements HasTable
         $getAllPeserta = [];
 
         if ($role['nm_role'] == 'MM Daerah') {
-            if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
+            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id']);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('status', 'Pelajar SMP');
@@ -171,9 +171,13 @@ class PresensiKegiatan extends Page implements HasTable
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('jk', 'P');
+            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
+                $strUsia = substr($kegiatan->kategori_peserta, 14);
+                $range = explode('-', $strUsia);
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereBetween('usia', $range);
             }
         } elseif ($role['nm_role'] == 'MM Desa') {
-            if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
+            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id'])->where('desa_id', '=', $role['desa_id']);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('status', 'Pelajar SMP');
@@ -187,9 +191,13 @@ class PresensiKegiatan extends Page implements HasTable
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('jk', 'P');
+            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
+                $strUsia = substr($kegiatan->kategori_peserta, 14);
+                $range = explode('-', $strUsia);
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereBetween('usia', $range);
             }
         } elseif ($role['nm_role'] == 'MM Kelompok') {
-            if ($kegiatan->kategori_peserta == 'Semua Muda-Mudi') {
+            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id']);
             } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('status', 'Pelajar SMP');
@@ -203,6 +211,10 @@ class PresensiKegiatan extends Page implements HasTable
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereNot('status', 'LIKE', 'Pelajar%');
             } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('jk', 'P');
+            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
+                $strUsia = substr($kegiatan->kategori_peserta, 14);
+                $range = explode('-', $strUsia);
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereBetween('usia', $range);
             }
         }
 

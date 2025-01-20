@@ -14,6 +14,11 @@ class FormKegiatan extends Component
     {
         setlocale(LC_ALL, 'id-ID', 'id_ID');
         $this->kegiatan = $kegiatan;
+        
+        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
+            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
+            $this->kegiatan->kategori_peserta = 'Generus Usia ' . $strUsia . ' tahun';
+        }
 
         if($this->kegiatan->is_finish) {
             abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');

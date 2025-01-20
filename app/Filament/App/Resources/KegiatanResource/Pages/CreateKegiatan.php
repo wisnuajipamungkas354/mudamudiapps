@@ -26,7 +26,12 @@ class CreateKegiatan extends CreateRecord
     {
         $data['tingkatan_kegiatan'] = auth()->user()->roles[0]->name;
         $data['detail_tingkatan'] = auth()->user()->detail;
-
+        if($data['kategori_peserta'] === 'Kustom Usia') {
+            $data['kategori_peserta'] = $data['kategori_peserta'] . ' | ' . $data['start'] . '-' . $data['until'];
+            unset($data['start']);
+            unset($data['until']);
+        }
+        
         $record = static::getModel()::create($data);
 
         return $record;

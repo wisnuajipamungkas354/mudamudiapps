@@ -72,24 +72,38 @@ class KegiatanResource extends Resource
                         Forms\Components\Select::make('kategori_peserta')
                             ->label('Kategori Peserta')
                             ->options([
-                                'Semua Muda-Mudi' => 'Semua Muda-mudi',
+                                'Seluruh Muda-Mudi' => 'Seluruh Muda-mudi',
                                 'Pelajar SMP' => 'Pelajar SMP',
                                 'Pelajar SMA/K' => 'Pelajar SMA/K',
                                 'Pelajar SMP & SMA/K' => 'Pelajar SMP & SMA/K',
                                 'Mahasiswa' => 'Mahasiswa',
                                 'Lepas Pelajar' => 'Lepas Pelajar',
                                 'Keputrian' => 'Keputrian',
+                                'Kustom Usia' => 'Kustom Usia',
                             ])
                             ->live()
                             ->preload()
                             ->required(),
-                        Forms\Components\TextInput::make('kode_kegiatan')
-                            ->label('Kode Kegiatan')
-                            ->placeholder('Masukkan Kode (6 digit)')
-                            ->autocomplete(false)
-                            ->required()
-                            ->minLength(6)
-                            ->maxLength(6)
+                        Forms\Components\TextInput::make('start')
+                            ->label('Batas Awal Usia')
+                            ->numeric()
+                            ->placeholder('Masukkan Angka')
+                            ->hidden(fn(Get $get) => $get('kategori_peserta') !== 'Kustom Usia')
+                            ->required(),
+                        Forms\Components\TextInput::make('until')
+                            ->label('Batas Akhir Usia')
+                            ->numeric()
+                            ->placeholder('Masukkan Angka')
+                            ->hidden(fn(Get $get) => $get('kategori_peserta') !== 'Kustom Usia')
+                            ->default(35)
+                            ->required(),
+                        // Forms\Components\TextInput::make('kode_kegiatan')
+                        //     ->label('Kode Kegiatan')
+                        //     ->placeholder('Masukkan Kode (6 digit)')
+                        //     ->autocomplete(false)
+                        //     ->required()
+                        //     ->minLength(6)
+                        //     ->maxLength(6)
                     ])->columns(2)
             ]);
     }
@@ -113,8 +127,8 @@ class KegiatanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_peserta')
                     ->label('Kategori Peserta'),
-                Tables\Columns\TextColumn::make('kode_kegiatan')
-                    ->label('Kode Kegiatan'),
+                // Tables\Columns\TextColumn::make('kode_kegiatan')
+                //     ->label('Kode Kegiatan'),
             ])
             ->filters([
                 //
@@ -124,6 +138,11 @@ class KegiatanResource extends Resource
                     ->label('Umumin')
                     ->icon('heroicon-o-chat-bubble-bottom-center-text')
                     ->url(function(Kegiatan $record): string {
+                        if(str_contains($record->kategori_peserta, 'Kustom Usia')) {
+                            $peserta = substr($record->kategori_peserta, 14);
+                            $record->kategori_peserta = 'Generus Usia ' . $peserta . ' tahun';
+                        }
+                        
                         setlocale(LC_ALL, 'id-ID', 'id_ID');
                         $waktu = strftime("%A, %d %B %Y", strtotime($record->waktu_mulai));
                         $jam = date('H:i', strtotime($record->waktu_mulai));

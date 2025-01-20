@@ -2,7 +2,7 @@
     <x-slot:title>{{ $this->title }}</x-slot:title>
     <section class="flex flex-col justify-center bg-white p-10 rounded-md shadow-xl m-4 w-full md:w-2/4 lg:2/5">
         <x-filament::icon-button icon="heroicon-c-arrow-long-left" href="/presensi-mudamudi/{{ $this->kegiatan->id }}" tag="a" label="Filament" size="lg" color="gray" wire:navigate/>
-        <h1 class="text-2xl text-center font-semibold my-3">Form Perizinan {{ $this->kegiatan->nm_kegiatan }}</h1>
+        <h1 class="text-2xl text-center font-semibold my-3">Form Perizinan <br> {{ $this->kegiatan->nm_kegiatan }}</h1>
         <p><x-heroicon-o-map-pin class="inline" width="1.3rem" /> {{ $this->kegiatan->tempat_kegiatan }}</p>
         <p><x-heroicon-o-calendar class="inline" width="1.3rem"/> {{ strftime("%A, %d %B %Y", strtotime($this->kegiatan->waktu_mulai)) }}</p>
         <p><x-heroicon-o-clock class="inline" width="1.3rem"/> {{ date('H:i', strtotime($this->kegiatan->waktu_mulai)) }} s/d Selesai</p>

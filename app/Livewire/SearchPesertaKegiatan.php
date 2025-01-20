@@ -57,7 +57,18 @@ class SearchPesertaKegiatan extends Component implements HasForms
                 Select::make('search')
                     ->label('Cari Nama atau ID')
                     ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => Mudamudi::where('nama', 'LIKE', "%{$search}%")->orWhere('id', 'LIKE', "%{$search}%")->limit(10)->pluck('nama', 'id')->toArray())
+                    ->getSearchResultsUsing(function (string $search): array {
+                        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
+                            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
+                            $range = explode('-', $strUsia);
+                            
+                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->orWhere('id', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->pluck('nama', 'id')->toArray();
+                        } else {
+                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")
+                            ->orWhere('id', 'LIKE', "%{$search}%")
+                            ->limit(10)->pluck('nama', 'id')->toArray();
+                        }
+                    }) 
                     ->getOptionLabelUsing(fn ($value): ?string => Mudamudi::find($value)?->name)
                     ->live()
                     ->preload()
