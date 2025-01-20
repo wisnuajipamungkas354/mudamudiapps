@@ -38,6 +38,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -414,6 +415,10 @@ class PresensiKegiatan extends Page implements HasTable
         $peserta = Presensi::query()->where('kegiatan_id', '=', $this->record->id)->whereNot('keterangan', '=', 'Izin')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
 
         return $table
+            ->headerActions([
+                Action::make('refresh')
+                    ->label('Refresh')
+            ])
             ->query($peserta)
             ->columns([
                 TextColumn::make('mudamudi.kelompok.nm_kelompok')
