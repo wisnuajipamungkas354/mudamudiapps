@@ -27,6 +27,11 @@ class SearchPesertaKegiatan extends Component implements HasForms
         setlocale(LC_ALL, 'id-ID', 'id_ID');
         $this->form->fill();
         $this->kegiatan = $kegiatan;
+        
+        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
+            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
+            $this->kegiatan->kategori_peserta = 'Generus Usia ' . $strUsia . ' tahun';
+        }
 
         if(Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(-30) >= Carbon::now()){
             abort(403, 'Mohon Maaf Presensi Belum Dibuka!');
