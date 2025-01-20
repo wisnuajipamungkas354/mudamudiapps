@@ -25,6 +25,7 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -310,7 +311,36 @@ class MudamudiappResource extends Resource
                     ->options(['Siap' => 'Siap', 'Belum' => 'Belum']),
                 SelectFilter::make('jk')
                     ->label('Jenis Kelamin')
-                    ->options(['L' => 'Laki-laki', 'P' => 'Perempuan'])
+                    ->options(['L' => 'Laki-laki', 'P' => 'Perempuan']),
+                Filter::make('range_usia')
+                    ->label('Range Usia')
+                    ->form([
+                        Forms\Components\TextInput::make('start')
+                            ->label('Batas Awal Usia')
+                            ->numeric()
+                            ->placeholder('Masukkan Angka'),
+                        Forms\Components\TextInput::make('until')
+                            ->label('Batas Akhir Usia')
+                            ->numeric()
+                            ->placeholder('Masukkan Angka'),
+                    ])
+                    ->query(function(Builder $query, array $data) {
+                        if($data['start'] !== null && $data['until'] === null) {
+                            return $query
+                            ->when(
+                                $data['start'], fn(Builder $query, $start) : Builder => $query->where('usia', '>=', $start),
+                            );
+                        } elseif($data['start'] !== null && $data['until'] !== null ) {
+                            return $query
+                            ->when(
+                                $data['start'], fn(Builder $query, $start) : Builder => $query->where('usia', '>=', $start),
+                            )
+                            ->when(
+                                $data['until'], fn(Builder $query, $until) : Builder => $query->where('usia', '<=', $until),
+                            );
+                        }
+
+                    })
             ])
             ->actions([
                 Tables\Actions\Action::make('qr-download')
