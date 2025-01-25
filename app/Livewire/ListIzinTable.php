@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Filament\Tables\Filters\SelectFilter;
 
 class ListIzinTable extends Component implements HasForms, HasTable
 {
@@ -30,9 +31,10 @@ class ListIzinTable extends Component implements HasForms, HasTable
 
     public function table(Table $table): Table
     {
-    
+        $query = Presensi::query()->where('kegiatan_id', '=', $this->kegiatan->id)->where('keterangan', '=', 'Izin')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
+
         return $table
-            ->query(Presensi::query()->where('kegiatan_id', '=', $this->kegiatan->id)->where('keterangan', '=', 'Izin')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at'))
+            ->query($query)
             ->headerActions([
                 Action::make('refresh')
                     ->label('Refresh')
@@ -50,7 +52,14 @@ class ListIzinTable extends Component implements HasForms, HasTable
                     ->label('Keterangan Izin')
             ])
             ->filters([
-                // ...
+                SelectFilter::make('Desa')
+                    ->relationship('mudamudi.desa', 'nm_desa'),
+                SelectFilter::make('Kelompok')
+                    ->relationship('mudamudi.kelompok', 'nm_kelompok')
+                    ->searchable(),
+                SelectFilter::make('mudamudi.siap_nikah')
+                    ->label('Siap Nikah')
+                    ->options(['Siap' => 'Siap', 'Belum' => 'Belum'])
             ])
             ->actions([
                 // 
@@ -59,7 +68,7 @@ class ListIzinTable extends Component implements HasForms, HasTable
                 // ...
             ])
             ->defaultPaginationPageOption(5)
-            ->emptyStateHeading('Belum ada yang registrasi');
+            ->emptyStateHeading('Belum ada yang izin');
     }
 
     public function render()
