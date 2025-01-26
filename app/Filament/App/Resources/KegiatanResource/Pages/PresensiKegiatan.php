@@ -423,6 +423,9 @@ class PresensiKegiatan extends Page implements HasTable
             ])
             ->query($peserta)
             ->columns([
+                TextColumn::make('presensis.no_peserta')
+                    ->label('No Peserta')
+                    ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('no_peserta')),
                 TextColumn::make('presensis.updated_at')
                     ->label('Jam')
                     ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('updated_at'))

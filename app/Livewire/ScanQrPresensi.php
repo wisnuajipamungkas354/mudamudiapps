@@ -40,6 +40,7 @@ class ScanQrPresensi extends Component
         }
 
         if (DB::table('presensis')->where('kegiatan_id', $this->kegiatan->id)->where('mudamudi_id', $id)->exists()) {
+
             DB::table('presensis')->where('kegiatan_id', $this->kegiatan->id)->where('mudamudi_id', $id)->update([
                 'keterangan' => 'Hadir',
                 'kedatangan' => $kedatangan,
@@ -48,9 +49,17 @@ class ScanQrPresensi extends Component
                 'updated_at' => $now
             ]);
         } elseif(DB::table('mudamudis')->where('id', $id)->exists()) {
+            $lastNomorPeserta = Presensi::query()->where('kegiatan_id', $this->kegiatan->id)->max('no_peserta');
+            if($lastNomorPeserta == null) {
+                $lastNomorPeserta = 1;
+            } else {
+                $lastNomorPeserta = $lastNomorPeserta + 1;
+            }
+            
             Presensi::create([
                 'kegiatan_id' => $this->kegiatan->id,
                 'mudamudi_id' => $id,
+                'no_peserta' => $lastNomorPeserta,
                 'keterangan' => 'Hadir',
                 'kedatangan' => $kedatangan,
             ]);
