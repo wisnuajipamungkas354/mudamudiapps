@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\MudamudiappResource\Pages;
 
 use App\Filament\App\Resources\MudamudiappResource;
+use App\Filament\App\Resources\MudamudiappResource\Widgets\CounterStat;
 use App\Filament\Exports\MudamudiExporter;
 use App\Models\Daerah;
 use App\Models\Desa;
@@ -12,6 +13,7 @@ use App\Models\Mudamudi;
 use Filament\Actions;
 use Filament\Actions\ExportAction;
 use Filament\Actions\Exports\Enums\ExportFormat;
+use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Contracts\Support\Htmlable;
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\DB;
 
 class ListMudamudiapps extends ListRecords
 {
+    use ExposesTableToWidgets;
+
     protected static string $resource = MudamudiappResource::class;
 
     protected function getHeaderActions(): array
@@ -40,6 +44,16 @@ class ListMudamudiapps extends ListRecords
     public function getTitle(): string|Htmlable
     {
         return 'Data Muda-Mudi';
+    }
+
+    public function getHeaderWidgets() :array {
+        $total = '';
+        $l = '';
+        $p = '';
+
+        return [
+            CounterStat::class,
+        ];
     }
 
     public function getTabs(): array

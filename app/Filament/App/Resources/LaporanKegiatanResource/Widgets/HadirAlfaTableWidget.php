@@ -39,6 +39,8 @@ class HadirAlfaTableWidget extends BaseWidget
         return $table
             ->query($getQuery)
             ->columns([
+                TextColumn::make('presensi.no_peserta')
+                    ->label('No Peserta'),
                 TextColumn::make('mudamudi.kelompok.nm_kelompok')
                     ->label('Kelompok')
                     ->searchable(),
