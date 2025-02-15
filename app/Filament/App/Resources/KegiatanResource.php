@@ -127,8 +127,8 @@ class KegiatanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_peserta')
                     ->label('Kategori Peserta'),
-                // Tables\Columns\TextColumn::make('kode_kegiatan')
-                //     ->label('Kode Kegiatan'),
+                Tables\Columns\TextColumn::make('konfirmasi_kehadiran')
+                    ->label('Konfirmasi Kehadiran'),
             ])
             ->filters([
                 //
@@ -142,6 +142,8 @@ class KegiatanResource extends Resource
                             $peserta = substr($record->kategori_peserta, 14);
                             $record->kategori_peserta = 'Generus Usia ' . $peserta . ' tahun';
                         }
+
+                        if($record->kategori_peserta == 'Pelajar SMP & SMA/K') $record->kategori_peserta = 'Pelajar SMP dan SMA/K';
                         
                         setlocale(LC_ALL, 'id-ID', 'id_ID');
                         $waktu = strftime("%A, %d %B %Y", strtotime($record->waktu_mulai));

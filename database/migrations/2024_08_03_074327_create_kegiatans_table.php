@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('kategori_peserta');
             $table->string('detail_kategori')->nullable();
             $table->string('kode_kegiatan', 6)->nullable();
+            $table->integer('konfirmasi_kehadiran');
             $table->boolean('is_finish')->default(false);
             $table->timestamps();
         });
