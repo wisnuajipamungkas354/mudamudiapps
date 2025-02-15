@@ -127,8 +127,8 @@ class KegiatanResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('kategori_peserta')
                     ->label('Kategori Peserta'),
-                Tables\Columns\TextColumn::make('konfirmasi_kehadiran')
-                    ->label('Konfirmasi Kehadiran'),
+                // Tables\Columns\TextColumn::make('konfirmasi_kehadiran')
+                //     ->label('Konfirmasi Kehadiran'),
             ])
             ->filters([
                 //
