@@ -30,9 +30,21 @@ class FormPerizinanKegiatan extends Component implements HasForms
         $this->form->fill();
         $this->kegiatan = $kegiatan;
 
-        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
-            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
+        if($this->kegiatan->kategori_peserta[0] === 'age'){
+            $strUsia = $this->kegiatan->kategori_peserta[1] . ' s/d ' . $this->kegiatan->kategori_peserta[2];
             $this->kegiatan->kategori_peserta = 'Generus Usia ' . $strUsia . ' tahun';
+        } elseif ($this->kegiatan->kategori_peserta[0] ===  'all') {
+            $this->kegiatan->kategori_peserta = 'Semua Peserta';
+        } elseif($this->kegiatan->kategori_peserta[0] === 'category') {
+            $len = count($this->kegiatan->kategori_peserta);
+            $strKategori = '';
+            if($len > 2) {
+                foreach($this->kegiatan->kategori_peserta as $kategori) {
+                    $strKategori = $strKategori . $kategori . ', ';
+                }
+            } else {
+                $this->kegiatan->kategori_peserta = $this->kegiatan->kategori_peserta[1];
+            }
         }
         
         if($this->kegiatan->is_finish) {
@@ -56,16 +68,9 @@ class FormPerizinanKegiatan extends Component implements HasForms
                     ->live()
                     ->preload()
                     ->getSearchResultsUsing(function(string $search): array {
-                        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
-                            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
-                            $range = explode('-', $strUsia);
-                            
-                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->orWhere('id', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->pluck('nama', 'id')->toArray();
-                        } else {
-                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")
-                            ->orWhere('id', 'LIKE', "%{$search}%")
-                            ->limit(10)->pluck('nama', 'id')->toArray();
-                        }
+                        return Mudamudi::where('nama', 'LIKE', "%{$search}%")
+                        ->orWhere('id', 'LIKE', "%{$search}%")
+                        ->limit(10)->pluck('nama', 'id')->toArray();
                     })
                     ->getOptionLabelUsing(fn($value): ?string => Mudamudi::find($value)?->name)
                     ->placeholder('Masukkan Nama atau ID kamu')
@@ -159,6 +164,18 @@ class FormPerizinanKegiatan extends Component implements HasForms
         if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())){
             abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
         }
+
+        $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
+        if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
+            return Notification::make('fail_notification')
+                ->title('Form Perizinan Gagal!')
+                ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak perlu izin yaa!')
+                ->danger()
+                ->color('danger')
+                ->seconds(10)
+                ->send();
+        }
+
         
         $formData = [
             'kegiatan_id' => $this->kegiatan->id,

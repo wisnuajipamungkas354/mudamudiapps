@@ -15,6 +15,10 @@ class Kegiatan extends Model
 
     public $incrementing = false;
 
+    protected $casts = [
+        'kategori_peserta' => 'array'
+    ];
+
     // Event "creating" untuk otomatis mengisi pengkodean id
     protected static function booted()
     {

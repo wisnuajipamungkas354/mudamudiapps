@@ -50,7 +50,11 @@ class LaporanKegiatanResource extends Resource
                     ->color('success')
                     ->getStateUsing(function(LaporanKegiatan $record) {
                         $totalHadir = $record->hadir_l + $record->hadir_p;
-                        $hadirPercent = round(($totalHadir / $record->total_peserta) * 100);
+                        if($totalHadir != 0) {
+                            $hadirPercent = round(($totalHadir / $record->total_peserta) * 100);
+                        } else {
+                            $hadirPercent = 0;
+                        }
                         return $totalHadir . ' peserta / ' . $hadirPercent . '%';
                     }),
                 TextColumn::make('izin')
@@ -59,7 +63,11 @@ class LaporanKegiatanResource extends Resource
                     ->color('warning')
                     ->getStateUsing(function(LaporanKegiatan $record) {
                         $totalIzin = $record->izin_l + $record->izin_p;
-                        $hadirPercent = round(($totalIzin / $record->total_peserta) * 100);
+                        if($totalIzin != 0) {
+                            $hadirPercent = round(($totalIzin / $record->total_peserta) * 100);
+                        } else {
+                            $hadirPercent = 0;
+                        }
                         return $totalIzin . ' peserta / ' . $hadirPercent . '%';
                     }),
                 TextColumn::make('alfa')
@@ -68,7 +76,11 @@ class LaporanKegiatanResource extends Resource
                     ->color('danger')
                     ->getStateUsing(function(LaporanKegiatan $record) {
                         $totalAlfa = $record->alfa_l + $record->alfa_p;
-                        $hadirPercent = round(($totalAlfa / $record->total_peserta) * 100);
+                        if($totalAlfa != 0) {
+                            $hadirPercent = round(($totalAlfa / $record->total_peserta) * 100);
+                        } else {
+                            $hadirPercent = 0;
+                        }
                         return $totalAlfa . ' peserta / ' . $hadirPercent . '%';
                     }),
                 TextColumn::make('total_peserta')

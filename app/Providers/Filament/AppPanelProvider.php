@@ -73,10 +73,6 @@ class AppPanelProvider extends PanelProvider
                 Authenticate::class,
                 IsUser::class
             ])
-            ->assets([
-                Js::make('plugin-qrcode', asset('js/qrcode/html5-qrcode.min.js')),
-                Js::make('scanqr-settings', asset('js/qrcode/scanQR.js'))
-            ])
             ->spa();
     }
 }

@@ -44,7 +44,7 @@ class KegiatanResource extends Resource
     {
        return $form
             ->schema([
-                Card::make()
+                Card::make('Informasi Kegiatan')
                     ->schema([
                         Forms\Components\TextInput::make('nm_kegiatan')
                             ->label('Judul Kegiatan')
@@ -69,34 +69,66 @@ class KegiatanResource extends Resource
                             ->minDate(fn(Get $get) => $get('waktu_mulai'))
                             ->seconds(false)
                             ->required(),
-                        Forms\Components\Select::make('kategori_peserta')
-                            ->label('Kategori Peserta')
+                    ])->columns(2),
+                    Card::make('Peserta Kegiatan')
+                        ->schema([
+                            Forms\Components\Select::make('jk_peserta')
+                            ->label('Jenis Kelamin')
                             ->options([
-                                'Seluruh Muda-Mudi' => 'Seluruh Muda-mudi',
-                                'Pelajar SMP' => 'Pelajar SMP',
-                                'Pelajar SMA/K' => 'Pelajar SMA/K',
-                                'Pelajar SMP & SMA/K' => 'Pelajar SMP & SMA/K',
-                                'Mahasiswa' => 'Mahasiswa',
-                                'Lepas Pelajar' => 'Lepas Pelajar',
-                                'Keputrian' => 'Keputrian',
-                                'Kustom Usia' => 'Kustom Usia',
+                                'LP' => 'Laki-laki & Perempuan',
+                                'L' => 'Laki-laki Saja',
+                                'P' => 'Perempuan Saja',
+                            ])
+                            ->default('LP'),
+                        Forms\Components\Select::make('filter_peserta')
+                            ->label('Filter Peserta')
+                            ->options([
+                                'all' => 'Seluruh Muda-Mudi',
+                                'category' => 'Berdasarkan Kategori',
+                                'age' => 'Berdasarkan Usia',
                             ])
                             ->live()
+                            ->required(),
+                        Forms\Components\Select::make('kategori_peserta')
+                                ->label('Kategori Peserta')
+                            ->placeholder('Pilih satu atau beberapa kategori')
+                            ->options([
+                                '--- Pelajar ---' => [
+                                    'Pelajar SMP' => 'Pelajar SMP',
+                                    'Pelajar SMA' => 'Pelajar SMA',
+                                    'Pelajar SMK' => 'Pelajar SMK',
+                                ],
+                                '--- Lepas Pelajar ---' => [
+                                    'Lepas Pelajar' => 'Semua Lepas Pelajar',
+                                    'Mahasiswa' => 'Mahasiswa',
+                                    'Pencari Kerja' => 'Pencari Kerja',
+                                    'Karyawan/Pegawai' => 'Karyawan/Pegawai',
+                                    'Wirausaha' => 'Wirausaha/Freelance',
+                                    'Tenaga SB' => 'Tenaga SB',
+                                ],
+                            ])
+                            ->multiple()
+                            ->live()
                             ->preload()
+                            ->hidden(fn(Get $get) => $get('filter_peserta') !== 'category')
                             ->required(),
                         Forms\Components\TextInput::make('start')
                             ->label('Batas Awal Usia')
                             ->numeric()
                             ->placeholder('Masukkan Angka')
-                            ->hidden(fn(Get $get) => $get('kategori_peserta') !== 'Kustom Usia')
+                            ->hidden(fn(Get $get) => $get('filter_peserta') !== 'age')
                             ->required(),
                         Forms\Components\TextInput::make('until')
                             ->label('Batas Akhir Usia')
                             ->numeric()
                             ->placeholder('Masukkan Angka')
-                            ->hidden(fn(Get $get) => $get('kategori_peserta') !== 'Kustom Usia')
+                            ->hidden(fn(Get $get) => $get('filter_peserta') !== 'age')
                             ->default(35)
                             ->required(),
+                        Forms\Components\Checkbox::make('siap_nikah')
+                            ->label('Siap Nikah'),
+                        Forms\Components\Checkbox::make('konfirmasi_kehadiran')
+                            ->label('Konfirmasi Kehadiran')
                         // Forms\Components\TextInput::make('kode_kegiatan')
                         //     ->label('Kode Kegiatan')
                         //     ->placeholder('Masukkan Kode (6 digit)')
@@ -104,7 +136,7 @@ class KegiatanResource extends Resource
                         //     ->required()
                         //     ->minLength(6)
                         //     ->maxLength(6)
-                    ])->columns(2)
+                        ])
             ]);
     }
 
@@ -125,8 +157,10 @@ class KegiatanResource extends Resource
                 Tables\Columns\TextColumn::make('detail_tingkatan')
                     ->label('Detail Tingkatan')
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('kategori_peserta')
-                    ->label('Kategori Peserta'),
+                Tables\Columns\TextColumn::make('kode_kegiatan')
+                    ->label('Kode Kegiatan')
+                    ->copyable()
+                    ->copyMessage('Kode berhasil disalin'),
                 // Tables\Columns\TextColumn::make('konfirmasi_kehadiran')
                 //     ->label('Konfirmasi Kehadiran'),
             ])
@@ -138,12 +172,19 @@ class KegiatanResource extends Resource
                     ->label('Umumin')
                     ->icon('heroicon-o-chat-bubble-bottom-center-text')
                     ->url(function(Kegiatan $record): string {
-                        if(str_contains($record->kategori_peserta, 'Kustom Usia')) {
-                            $peserta = substr($record->kategori_peserta, 14);
-                            $record->kategori_peserta = 'Generus Usia ' . $peserta . ' tahun';
+                        $peserta = '';
+                        if($record->kategori_peserta[0] === 'age') $peserta = 'Generus Usia ' . $record->kategori_peserta[1] . ' - ' . $record->kategori_peserta[2] . ' tahun'; 
+                        elseif($record->kategori_peserta[0] == 'category') {
+                            $length = count($record->kategori_peserta);
+                            for($i = 0; $i < $length; $i++) {
+                                if($i == 0) $peserta = '';
+                                elseif($i == $length - 1) $peserta .= ' dan ' . $record->kategori_peserta[$i];
+                                elseif($i == 1) $peserta .= $record->kategori_peserta[$i];
+                                else $peserta .= ', ' . $record->kategori_peserta[$i];
+                            }
+                        } else {
+                            $peserta = 'Seluruh Muda-mudi';
                         }
-
-                        if($record->kategori_peserta == 'Pelajar SMP & SMA/K') $record->kategori_peserta = 'Pelajar SMP dan SMA/K';
                         
                         setlocale(LC_ALL, 'id-ID', 'id_ID');
                         $waktu = strftime("%A, %d %B %Y", strtotime($record->waktu_mulai));
@@ -160,7 +201,7 @@ class KegiatanResource extends Resource
 %0A📆 {$waktu}
 %0A⏰ {$jam} s/d Selesai
 %0A📍 {$record->tempat_kegiatan}
-%0A👳🏻‍♀🧕 _{$record->kategori_peserta}_
+%0A👳🏻‍♀🧕 _{$peserta}_
 %0A
 %0A*NB:*
 %0A- Membawa sodaqoh lemparan
@@ -195,18 +236,18 @@ class KegiatanResource extends Resource
                 Tables\Actions\Action::make('presensi')
                     ->label('Presensi')
                     ->url(fn(Kegiatan $record) =>  'kegiatans/'  . $record->id . '/presensi')
-                    ->icon('heroicon-o-book-open')
-                    ->visible(function(Kegiatan $record) {
-                        if(Carbon::parse($record->waktu_mulai)->addMinutes(-30) > Carbon::now()){
-                            return false;
-                        }
+                    ->icon('heroicon-o-book-open'),
+                    // ->visible(function(Kegiatan $record) {
+                    //     if(Carbon::parse($record->waktu_mulai)->addMinutes(-30) > Carbon::now()){
+                    //         return false;
+                    //     }
 
-                        if($record->is_finish) {
-                            return false;
-                        } else {
-                            return true;
-                        }
-                    }),
+                    //     if($record->is_finish) {
+                    //         return false;
+                    //     } else {
+                    //         return true;
+                    //     }
+                    // }),
                 // Tables\Actions\Action::make('lihat_rekap')
                 //     ->label('Lihat Rekapitulasi')
                 //     ->color('success')

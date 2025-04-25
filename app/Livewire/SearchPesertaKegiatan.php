@@ -4,7 +4,10 @@ namespace App\Livewire;
 
 use App\Models\Kegiatan;
 use App\Models\Mudamudi;
+use App\Models\Presensi;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -12,6 +15,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class SearchPesertaKegiatan extends Component implements HasForms
@@ -20,7 +25,7 @@ class SearchPesertaKegiatan extends Component implements HasForms
     
     public ?array $data = [];
     public $kegiatan;
-    public $title = 'Presensi Kehadiran QR';
+    public $title = 'Presensi Kehadiran';
     
     public function mount(Kegiatan $kegiatan): void
     {
@@ -28,12 +33,24 @@ class SearchPesertaKegiatan extends Component implements HasForms
         $this->form->fill();
         $this->kegiatan = $kegiatan;
         
-        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
-            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
+        if($this->kegiatan->kategori_peserta[0] === 'age'){
+            $strUsia = $this->kegiatan->kategori_peserta[1] . ' s/d ' . $this->kegiatan->kategori_peserta[2];
             $this->kegiatan->kategori_peserta = 'Generus Usia ' . $strUsia . ' tahun';
+        } elseif ($this->kegiatan->kategori_peserta[0] ===  'all') {
+            $this->kegiatan->kategori_peserta = 'Semua Peserta';
+        } elseif($this->kegiatan->kategori_peserta[0] === 'category') {
+            $len = count($this->kegiatan->kategori_peserta);
+            $strKategori = '';
+            if($len > 2) {
+                foreach($this->kegiatan->kategori_peserta as $kategori) {
+                    $strKategori = $strKategori . $kategori . ', ';
+                }
+            } else {
+                $this->kegiatan->kategori_peserta = $this->kegiatan->kategori_peserta[1];
+            }
         }
 
-        if(Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(-30) >= Carbon::now()){
+        if(Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(-30) >= Carbon::now()) {
             abort(403, 'Mohon Maaf Presensi Belum Dibuka!');
         }
 
@@ -41,7 +58,7 @@ class SearchPesertaKegiatan extends Component implements HasForms
             abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');
         }
 
-        if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())){
+        if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())) {
             abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
         }
     }
@@ -63,17 +80,10 @@ class SearchPesertaKegiatan extends Component implements HasForms
                     ->label('Cari Nama atau ID')
                     ->searchable()
                     ->getSearchResultsUsing(function (string $search): array {
-                        if(str_contains($this->kegiatan->kategori_peserta, 'Kustom Usia')){
-                            $strUsia = substr($this->kegiatan->kategori_peserta, 14);
-                            $range = explode('-', $strUsia);
-                            
-                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->orWhere('id', 'LIKE', "%{$search}%")->whereBetween('usia', $range)->limit(10)->pluck('nama', 'id')->toArray();
-                        } else {
-                            return Mudamudi::where('nama', 'LIKE', "%{$search}%")
+                        return Mudamudi::where('nama', 'LIKE', "%{$search}%")
                             ->orWhere('id', 'LIKE', "%{$search}%")
                             ->limit(10)->pluck('nama', 'id')->toArray();
-                        }
-                    }) 
+                    })
                     ->getOptionLabelUsing(fn ($value): ?string => Mudamudi::find($value)?->name)
                     ->live()
                     ->preload()
@@ -117,6 +127,63 @@ class SearchPesertaKegiatan extends Component implements HasForms
                     ->readOnly(),
             ])
             ->statePath('data');
+    }
+
+    public function hadirAction() :void {
+        $dataHadir = $this->form->getState();
+        
+        if($this->kegiatan->is_finish) {
+            abort(403, 'Mohon Maaf Kegiatan Sudah Selesai');
+        }
+
+        if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())){
+            abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
+        }
+
+        $now = Carbon::now();
+        $waktuKegiatan = '';
+        $onTime = '';
+        $kedatangan = '';
+
+        // Penentu Waktu Mulai Kegiatan
+        $waktuKegiatan = Carbon::parse($this->kegiatan->waktu_mulai);
+        $onTime = Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(15);
+
+        // Penentuan Kategori Kedatangan
+        if ($now < $waktuKegiatan) {
+            $kedatangan = 'In Time';
+        } elseif ($waktuKegiatan <= $now && $now <= $onTime) {
+            $kedatangan = 'On Time';
+        } elseif ($onTime < $now) {
+            $kedatangan = 'Overtime';
+        }
+
+        if (DB::table('presensis')->where('kegiatan_id', $this->kegiatan->id)->where('mudamudi_id', $dataHadir['id'])->exists()) {
+            DB::table('presensis')->where('kegiatan_id', $this->kegiatan->id)->where('mudamudi_id', $dataHadir['id'])->update([
+                'keterangan' => 'Hadir',
+                'kedatangan' => $kedatangan,
+                'kategori_izin' => null,
+                'ket_izin' => null,
+                'updated_at' => $now
+            ]);
+        } else {
+            Presensi::create([
+                'kegiatan_id' => $this->kegiatan->id,
+                'mudamudi_id' => $dataHadir['id'],
+                'keterangan' => 'Hadir',
+                'kedatangan' => $kedatangan,
+            ]);
+        }
+
+        redirect('/presensi-mudamudi/' . $this->kegiatan->id);
+
+        Notification::make('success_notification')
+        ->title('Presensi Berhasil!')
+        ->body('Alhamdulillah Jazakumullohu Khoiro! Silahkan mengikuti kegiatan hingga selesai. Semoga sukses lancar & barokah!')
+        ->success()
+        ->color('success')
+        ->seconds(6)
+        ->send();
     }
 
 

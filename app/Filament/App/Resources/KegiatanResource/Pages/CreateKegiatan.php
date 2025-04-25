@@ -26,12 +26,19 @@ class CreateKegiatan extends CreateRecord
     {
         $data['tingkatan_kegiatan'] = auth()->user()->roles[0]->name;
         $data['detail_tingkatan'] = auth()->user()->detail;
-        if($data['kategori_peserta'] === 'Kustom Usia') {
-            $data['kategori_peserta'] = $data['kategori_peserta'] . ' | ' . $data['start'] . '-' . $data['until'];
+        
+        if($data['filter_peserta'] === 'all') {
+            $data['kategori_peserta'] = ['all'];
+        } elseif($data['filter_peserta'] === 'age') {
+            $data['kategori_peserta'] =  ['age', $data['start'], $data['until']];
             unset($data['start']);
             unset($data['until']);
+        } else {
+            $data['kategori_peserta'] = ['category', ...$data['kategori_peserta']];
         }
-        
+
+        $data['kode_kegiatan'] = rand(1000, 9999);
+        unset($data['filter_peserta']);
         $record = static::getModel()::create($data);
 
         return $record;

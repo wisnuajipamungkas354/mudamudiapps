@@ -160,64 +160,32 @@ class PresensiKegiatan extends Page implements HasTable
         $getAllPeserta = [];
 
         if ($role['nm_role'] == 'MM Daerah') {
-            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
+            if ($kegiatan->kategori_peserta[0] == 'all') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id']);
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
-            } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereNot('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('jk', 'P');
-            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
-                $strUsia = substr($kegiatan->kategori_peserta, 14);
-                $range = explode('-', $strUsia);
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereBetween('usia', $range);
-            }
+            } elseif ($kegiatan->kategori_peserta[0] == 'category') {
+                $newData = array_slice($kegiatan->kategori_peserta, 1);                
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereIn('status', $newData);
+            } elseif($kegiatan->kategori_peserta[0] == 'age') {
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->whereBetween('usia', [$kegiatan->kategori_peserta[1], $kegiatan->kategori_peserta[2]]);
+            } 
         } elseif ($role['nm_role'] == 'MM Desa') {
-            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
+            if ($kegiatan->kategori_peserta[0] == 'all') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id'])->where('desa_id', '=', $role['desa_id']);
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
-            } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereNot('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('jk', 'P');
-            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
-                $strUsia = substr($kegiatan->kategori_peserta, 14);
-                $range = explode('-', $strUsia);
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereBetween('usia', $range);
+            } elseif ($kegiatan->kategori_peserta[0] == 'category') {
+                $newData = array_slice($kegiatan->kategori_peserta, 1);                
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereIn('status', $newData);
+            } elseif ($kegiatan->kategori_peserta[0] == 'age') {
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->whereBetween('usia', [$kegiatan->kategori_peserta[1], $kegiatan->kategori_peserta[2]]);
             }
         } elseif ($role['nm_role'] == 'MM Kelompok') {
-            if ($kegiatan->kategori_peserta == 'Seluruh Muda-Mudi') {
+            if ($kegiatan->kategori_peserta[0] == 'all') {
                 $getAllPeserta = Mudamudi::query()->where('daerah_id', '=', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id']);
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('status', 'LIKE', 'Pelajar %')->whereNot('status', 'Pelajar SMP');
-            } elseif ($kegiatan->kategori_peserta == 'Pelajar SMP & SMA/K') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Mahasiswa') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereNot('status', 'LIKE', 'P%')->whereNot('status', 'LIKE', 'Tenaga%')->whereNot('status', 'LIKE', 'Karyawan%')->whereNot('status', 'LIKE', 'W%');
-            } elseif ($kegiatan->kategori_peserta == 'Lepas Pelajar') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereNot('status', 'LIKE', 'Pelajar%');
-            } elseif ($kegiatan->kategori_peserta == 'Keputrian') {
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->where('jk', 'P');
-            } elseif (str_contains($kegiatan->kategori_peserta, 'Kustom Usia')) {
-                $strUsia = substr($kegiatan->kategori_peserta, 14);
-                $range = explode('-', $strUsia);
-                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereBetween('usia', $range);
+            } elseif ($kegiatan->kategori_peserta[0] == 'category') {
+                $newData = array_slice($kegiatan->kategori_peserta, 1);                
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereIn('status', $newData);
+            } elseif ($kegiatan->kategori_peserta[0] == 'age') {
+                $newData = array_slice($kegiatan->kategori_peserta, 1);
+                $getAllPeserta = Mudamudi::query()->where('daerah_id', $role['daerah_id'])->where('desa_id', '=', $role['desa_id'])->where('kelompok_id', '=', $role['kelompok_id'])->whereBetween('usia', [$kegiatan->kategori_peserta[1], $kegiatan->kategori_peserta[2]]);
             }
         }
 
@@ -389,13 +357,13 @@ class PresensiKegiatan extends Page implements HasTable
                                     ->label('Waktu Pelaksanaan'),
                                 TextEntry::make('kategori_peserta')
                                     ->label('Kategori Peserta'),
-
                             ])
                             ->columns(4)
                     ])
             ]);
     }
 
+    // Tabel List Peserta
     public function table(Table $table): Table
     {
         if($this->record->is_finish) {
@@ -414,8 +382,9 @@ class PresensiKegiatan extends Page implements HasTable
             ->send();
         }
 
-        $peserta = Presensi::query()->where('kegiatan_id', '=', $this->record->id)->whereNot('keterangan', '=', 'Izin')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->latest('presensis.updated_at');
-
+        // $peserta = Presensi::query()->where('kegiatan_id', $this->record->id)->whereNot('keterangan', 'Izin');
+        $peserta = Mudamudi::query();
+        
         return $table
             ->headerActions([
                 Action::make('refresh')
@@ -423,18 +392,18 @@ class PresensiKegiatan extends Page implements HasTable
             ])
             ->query($peserta)
             ->columns([
-                TextColumn::make('presensis.no_peserta')
-                    ->label('No Peserta')
-                    ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('no_peserta')),
-                TextColumn::make('presensis.updated_at')
-                    ->label('Jam')
-                    ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('updated_at'))
-                    ->dateTime('H:i'),
-                TextColumn::make('mudamudi.kelompok.nm_kelompok')
+                // TextColumn::make('presensis.no_peserta')
+                //     ->label('No Peserta')
+                //     ->getStateUsing(fn (Mudamudi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('no_peserta')),
+                // TextColumn::make('presensis.updated_at')
+                //     ->label('Jam')
+                //     ->getStateUsing(fn (Mudamudi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('updated_at'))
+                //     ->dateTime('H:i'),
+                TextColumn::make('kelompok.nm_kelompok')
                     ->searchable(),
-                TextColumn::make('mudamudi.nama')
+                TextColumn::make('nama')
                     ->searchable(),
-                TextColumn::make('mudamudi.jk')
+                TextColumn::make('jk')
                     ->label('L/P'),
                 TextColumn::make('status'),
                 TextColumn::make('presensis.kedatangan')
@@ -446,97 +415,110 @@ class PresensiKegiatan extends Page implements HasTable
                         'Overtime' => 'warning',
                         'Tidak Datang' => 'danger',
                     })
-                    ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('kedatangan')),
+                    // ->getStateUsing(fn (Presensi $record) => DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->mudamudi_id)->value('kedatangan'))
+                    ->getStateUsing(function (Mudamudi $record) {
+                        $data = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id);
+                        if ($data->exists()) {
+                            return $data->value('kedatangan');
+                        } else {
+                            return 'Tidak Datang';
+                        }
+                    }),
+                    
             ])
             ->filters([
                 SelectFilter::make('Desa')
-                    ->relationship('mudamudi.desa', 'nm_desa'),
+                ->relationship('desa', 'nm_desa'),
                 SelectFilter::make('Kelompok')
-                    ->relationship('mudamudi.kelompok', 'nm_kelompok')
-                    ->searchable(),
-                SelectFilter::make('mudamudi.siap_nikah')
+                    ->relationship('kelompok', 'nm_kelompok'),
+                SelectFilter::make('Status')
+                    ->options(fn () => Status::query()->pluck('nm_status', 'nm_status'))
+                    ->multiple(),
+                SelectFilter::make('siap_nikah')
                     ->label('Siap Nikah')
                     ->options(['Siap' => 'Siap', 'Belum' => 'Belum']),
             ])
-            // ->actions([
-            //     Tables\Actions\Action::make('hadir')
-            //         ->label('Hadir')
-            //         ->color('success')
-            //         ->icon('heroicon-o-check-circle')
-            //         ->action(function (Mudamudi $record) {
-            //             $kegiatan = $this->record;
-            //             $now = Carbon::now();
-            //             $waktuKegiatan = '';
-            //             $onTime = '';
-            //             $kedatangan = '';
+            ->actions([
+                Tables\Actions\Action::make('hadir')
+                    ->label('Hadir')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->action(function (Mudamudi $record) {
+                        $kegiatan = $this->record;
+                        $now = Carbon::now();
+                        $waktuKegiatan = '';
+                        $onTime = '';
+                        $kedatangan = '';
 
-            //             // Penentu Waktu Mulai Kegiatan
-            //             $waktuKegiatan = Carbon::parse($kegiatan->waktu_mulai);
-            //             $onTime = Carbon::parse($this->record->waktu_mulai)->addMinutes(15);
+                        // Penentu Waktu Mulai Kegiatan
+                        $waktuKegiatan = Carbon::parse($kegiatan->waktu_mulai);
+                        $onTime = Carbon::parse($this->record->waktu_mulai)->addMinutes(15);
 
-            //             // Penentuan Kategori Kedatangan
-            //             if ($now < $waktuKegiatan) {
-            //                 $kedatangan = 'In Time';
-            //             } elseif ($waktuKegiatan <= $now && $now <= $onTime) {
-            //                 $kedatangan = 'On Time';
-            //             } elseif ($onTime < $now) {
-            //                 $kedatangan = 'Overtime';
-            //             }
+                        // Penentuan Kategori Kedatangan
+                        if ($now < $waktuKegiatan) {
+                            $kedatangan = 'In Time';
+                        } elseif ($waktuKegiatan <= $now && $now <= $onTime) {
+                            $kedatangan = 'On Time';
+                        } elseif ($onTime < $now) {
+                            $kedatangan = 'Overtime';
+                        }
 
-            //             if (DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->exists()) {
-            //                 DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->update([
-            //                     'keterangan' => 'Hadir',
-            //                     'kedatangan' => $kedatangan,
-            //                     'updated_at' => $now
-            //                 ]);
-            //             } else {
-            //                 Presensi::create([
-            //                     'kegiatan_id' => $kegiatan->id,
-            //                     'mudamudi_id' => $record->id,
-            //                     'keterangan' => 'Hadir',
-            //                     'kedatangan' => $kedatangan,
-            //                 ]);
-            //             }
-            //         }),
-            //     Tables\Actions\Action::make('izin')
-            //         ->label('Izin')
-            //         ->color('warning')
-            //         ->icon('heroicon-o-information-circle')
-            //         ->action(function (Mudamudi $record) {
-            //             if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
-            //                 DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
-            //                     'keterangan' => 'Izin',
-            //                     'kedatangan' => 'Tidak Datang',
-            //                 ]);
-            //             } else {
-            //                 Presensi::create([
-            //                     'kegiatan_id' => $this->record->id,
-            //                     'mudamudi_id' => $record->id,
-            //                     'keterangan' => 'Izin',
-            //                     'kedatangan' => 'Tidak Datang'
-            //                 ]);
-            //             }
-            //         }),
-            //     Tables\Actions\Action::make('alfa')
-            //         ->label('Alfa')
-            //         ->color('danger')
-            //         ->icon('heroicon-o-x-circle')
-            //         ->action(function (Mudamudi $record) {
-            //             if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
-            //                 DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
-            //                     'keterangan' => 'Alfa',
-            //                     'kedatangan' => 'Tidak Datang',
-            //                 ]);
-            //             } else {
-            //                 Presensi::create([
-            //                     'kegiatan_id' => $this->record->id,
-            //                     'mudamudi_id' => $record->id,
-            //                     'keterangan' => 'Alfa',
-            //                     'kedatangan' => 'Tidak Datang'
-            //                 ]);
-            //             }
-            //         }),
-            // ])
+                        if (DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->exists()) {
+                            DB::table('presensis')->where('kegiatan_id', $kegiatan->id)->where('mudamudi_id', $record->id)->update([
+                                'keterangan' => 'Hadir',
+                                'kedatangan' => $kedatangan,
+                                'kategori_izin' => null,
+                                'ket_izin' => null,
+                                'updated_at' => $now
+                            ]);
+                        } else {
+                            Presensi::create([
+                                'kegiatan_id' => $kegiatan->id,
+                                'mudamudi_id' => $record->id,
+                                'keterangan' => 'Hadir',
+                                'kedatangan' => $kedatangan,
+                            ]);
+                        }
+                    }),
+                // Tables\Actions\Action::make('izin')
+                //     ->label('Izin')
+                //     ->color('warning')
+                //     ->icon('heroicon-o-information-circle')
+                //     ->action(function (Mudamudi $record) {
+                //         if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
+                //             DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
+                //                 'keterangan' => 'Izin',
+                //                 'kedatangan' => 'Tidak Datang',
+                //             ]);
+                //         } else {
+                //             Presensi::create([
+                //                 'kegiatan_id' => $this->record->id,
+                //                 'mudamudi_id' => $record->id,
+                //                 'keterangan' => 'Izin',
+                //                 'kedatangan' => 'Tidak Datang'
+                //             ]);
+                //         }
+                //     }),
+                Tables\Actions\Action::make('alfa')
+                    ->label('Alfa')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->action(function (Mudamudi $record) {
+                        if (DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->exists()) {
+                            DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('mudamudi_id', $record->id)->update([
+                                'keterangan' => 'Alfa',
+                                'kedatangan' => 'Tidak Datang',
+                            ]);
+                        } else {
+                            Presensi::create([
+                                'kegiatan_id' => $this->record->id,
+                                'mudamudi_id' => $record->id,
+                                'keterangan' => 'Alfa',
+                                'kedatangan' => 'Tidak Datang'
+                            ]);
+                        }
+                    }),
+            ])
             ->bulkActions([
                 // 
             ])

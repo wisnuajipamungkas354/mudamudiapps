@@ -19,10 +19,12 @@ return new class extends Migration
             $table->dateTime('waktu_selesai');
             $table->string('tingkatan_kegiatan');
             $table->string('detail_tingkatan');
-            $table->string('kategori_peserta');
-            $table->string('detail_kategori')->nullable();
-            $table->string('kode_kegiatan', 6)->nullable();
-            $table->integer('konfirmasi_kehadiran');
+            // Informasi Peserta
+            $table->enum('jk_peserta', ['LP', 'L', 'P']); // Filter peserta berdasarkan jenis kelamin
+            $table->json('kategori_peserta'); // Pelajar SMP, SMA/K, Lepas Pelajar, Karyawan/Pegawai, Wirausaha/Freelance, Mahasiswa, Pencari Kerja
+            $table->boolean('siap_nikah')->default(false);
+            $table->boolean('konfirmasi_kehadiran')->default(false);
+            $table->string('kode_kegiatan', 4)->nullable();
             $table->boolean('is_finish')->default(false);
             $table->timestamps();
         });

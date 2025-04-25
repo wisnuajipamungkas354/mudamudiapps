@@ -6,6 +6,7 @@ use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
+use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +15,15 @@ class JenjangWidget extends ChartWidget
     protected static ?int $sort = 3;
     protected static ?string $heading = 'Jenjang';
     protected static ?string $maxHeight = '400px';
+    
+    protected function getOptions(): array|RawJs|null
+    {
+        return RawJs::make(<<<JS
+        {
+            radius: '100%',
+        }
+        JS);
+    }
 
     public function getUserRole()
     {
@@ -72,10 +82,16 @@ class JenjangWidget extends ChartWidget
         }
         
         $countedData = $this->categoriesCounter($dataMumi);
-
-        $dataChart[0] = round(($countedData['SMP'] / $countedData['All']) * 100);
-        $dataChart[1] = round(($countedData['SMA/K'] / $countedData['All']) * 100);
-        $dataChart[2] = round(($countedData['Lepas Pelajar'] / $countedData['All']) * 100);
+        
+        if($countedData['All'] > 0) {
+            $countedData['SMP'] > 0 ? $dataChart[0] = round(($countedData['SMP'] / $countedData['All']) * 100) : $dataChart[0] = 50;
+            $countedData['SMA/K'] > 0 ? $dataChart[1] = round(($countedData['SMA/K'] / $countedData['All']) * 100) : $dataChart[1] = 30;
+            $countedData['Lepas Pelajar'] > 0 ? $dataChart[2] = round(($countedData['Lepas Pelajar'] / $countedData['All']) * 100) : $dataChart[2] = 40;
+        } else {
+            $dataChart[0] = '50%';
+            $dataChart[1] = '50%';
+            $dataChart[2] = '50%';
+        }
 
         return [
             'datasets' => [

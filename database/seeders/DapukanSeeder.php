@@ -13,29 +13,29 @@ class DapukanSeeder extends Seeder
      */
     public function run(): void
     {
-        Dapukan::create([
-            'tingkatan' => 'Daerah',
-            'nama_dapukan' => 'KI',
-        ]);
+        // Dapukan::create([
+        //     'tingkatan' => 'Daerah',
+        //     'nama_dapukan' => 'KI',
+        // ]);
 
-        Dapukan::create([
-            'tingkatan' => 'Daerah',
-            'nama_dapukan' => 'Wakil KI',
-        ]);
+        // Dapukan::create([
+        //     'tingkatan' => 'Daerah',
+        //     'nama_dapukan' => 'Wakil KI',
+        // ]);
         
-        Dapukan::create([
-            'tingkatan' => 'Daerah',
-            'nama_dapukan' => 'Penerobos',
-        ]);
+        // Dapukan::create([
+        //     'tingkatan' => 'Daerah',
+        //     'nama_dapukan' => 'Penerobos',
+        // ]);
         
-        Dapukan::create([
-            'tingkatan' => 'Daerah',
-            'nama_dapukan' => 'KU',
-        ]);
+        // Dapukan::create([
+        //     'tingkatan' => 'Daerah',
+        //     'nama_dapukan' => 'KU',
+        // ]);
 
-        Dapukan::create([
-            'tingkatan' => 'Daerah',
-            'nama_dapukan' => 'Muballigh',
-        ]);
+        // Dapukan::create([
+        //     'tingkatan' => 'Daerah',
+        //     'nama_dapukan' => 'Muballigh',
+        // ]);
     }
 }
