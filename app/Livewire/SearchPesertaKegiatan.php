@@ -26,28 +26,29 @@ class SearchPesertaKegiatan extends Component implements HasForms
     public ?array $data = [];
     public $kegiatan;
     public $title = 'Presensi Kehadiran';
+    public $peserta = '';
     
     public function mount(Kegiatan $kegiatan): void
     {
         setlocale(LC_ALL, 'id-ID', 'id_ID');
         $this->form->fill();
         $this->kegiatan = $kegiatan;
+        $peserta = '';
         
         if($this->kegiatan->kategori_peserta[0] === 'age'){
             $strUsia = $this->kegiatan->kategori_peserta[1] . ' s/d ' . $this->kegiatan->kategori_peserta[2];
-            $this->kegiatan->kategori_peserta = 'Generus Usia ' . $strUsia . ' tahun';
+            $this->peserta = 'Generus Usia ' . $strUsia . ' tahun';
         } elseif ($this->kegiatan->kategori_peserta[0] ===  'all') {
-            $this->kegiatan->kategori_peserta = 'Semua Peserta';
+            $this->peserta = 'Seluruh Muda-mudi';
         } elseif($this->kegiatan->kategori_peserta[0] === 'category') {
-            $len = count($this->kegiatan->kategori_peserta);
-            $strKategori = '';
-            if($len > 2) {
-                foreach($this->kegiatan->kategori_peserta as $kategori) {
-                    $strKategori = $strKategori . $kategori . ', ';
-                }
-            } else {
-                $this->kegiatan->kategori_peserta = $this->kegiatan->kategori_peserta[1];
+            $length = count($this->kegiatan->kategori_peserta);
+            for($i = 0; $i < $length; $i++) {
+                if($i == 0) $peserta = '';
+                elseif($i == $length - 1) $peserta .= ' dan ' . $this->kegiatan->kategori_peserta[$i];
+                elseif($i == 1) $peserta .= $this->kegiatan->kategori_peserta[$i];
+                else $peserta .= ', ' . $this->kegiatan->kategori_peserta[$i];
             }
+            $this->peserta = $peserta;  
         }
 
         if(Carbon::parse($this->kegiatan->waktu_mulai)->addMinutes(-30) >= Carbon::now()) {

@@ -6,7 +6,7 @@
         <p><x-heroicon-o-map-pin class="inline" width="1.3rem" /> {{ $this->kegiatan->tempat_kegiatan }}</p>
         <p><x-heroicon-o-calendar class="inline" width="1.3rem"/> {{ strftime("%A, %d %B %Y", strtotime($this->kegiatan->waktu_mulai)) }}</p>
         <p><x-heroicon-o-clock class="inline" width="1.3rem"/> {{ date('H:i', strtotime($this->kegiatan->waktu_mulai)) }} s/d Selesai</p>
-        {{-- <!-- <p><x-heroicon-o-users class="inline" width="1.3rem"/> {{ $this->kegiatan->kategori_peserta }}</p> --> --}}
+        <p><x-heroicon-o-users class="inline" width="1.3rem"/> {{ $this->peserta }}</p>
 
         <div class="my-5">
             <div class="flex flex-col">
