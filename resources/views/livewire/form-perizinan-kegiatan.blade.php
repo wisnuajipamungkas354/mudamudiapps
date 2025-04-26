@@ -9,13 +9,13 @@
         <p><x-heroicon-o-users class="inline" width="1.3rem"/> {{ $this->peserta }}</p>
 
         <div class="my-5">
-            <div class="flex flex-col">
+            <form  wire:submit="create" class="flex flex-col">
                 {{ $this->form }}
                 
-                <x-filament::button size="md" class="my-4 justify-self-end" wire:click="create">
+                <x-filament::button size="md" class="my-4 justify-self-end" type="submit">
                     Kirim
                 </x-filament::button>
-            </div>
+            </form>
         </div>
 
         <p class="text-center text-gray-400">Nama kamu tidak ada ? Isi form registrasi terlebih dahulu yaa! <br>Klik link dibawah ini!</p>

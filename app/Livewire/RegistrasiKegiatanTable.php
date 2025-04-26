@@ -8,6 +8,7 @@ use App\Models\Kelompok;
 use App\Models\Mudamudi;
 use App\Models\Registrasi;
 use App\Models\Riwayat;
+use App\Models\Presensi;
 use App\Models\Shop\Product;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -102,6 +103,7 @@ class RegistrasiKegiatanTable extends Component implements HasForms, HasTable
                                 'nm_user' => auth()->user()->name,
                                 'action' => 'Apply',
                             ]);
+
                             $record->delete();
                             return Notification::make()
                                 ->success()

@@ -433,7 +433,15 @@ class PresensiKegiatan extends Page implements HasTable
                     ->relationship('kelompok', 'nm_kelompok'),
                 SelectFilter::make('Status')
                     ->options(fn () => Status::query()->pluck('nm_status', 'nm_status'))
-                    ->multiple(),
+                    ->multiple()
+                    ->default(function() {
+                        if($this->record->kategori_peserta[0] == 'category') {
+                            $newKategori = array_slice($this->record->kategori_peserta, 1);
+                            return $newKategori;
+                        } else {
+                            return null;
+                        }
+                    }),
                 SelectFilter::make('siap_nikah')
                     ->label('Siap Nikah')
                     ->options(['Siap' => 'Siap', 'Belum' => 'Belum']),

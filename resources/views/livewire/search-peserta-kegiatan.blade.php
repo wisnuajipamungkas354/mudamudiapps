@@ -8,13 +8,13 @@
         <p><x-heroicon-o-clock class="inline" width="1.3rem"/> {{ date('H:i', strtotime($this->kegiatan->waktu_mulai)) }} s/d Selesai</p>
         <p><x-heroicon-o-users class="inline" width="1.3rem"/> {{ $this->peserta }}</p>
 
-        <div class="my-5">
+        <form wire:submit="hadirAction" class="my-5">
             {{ $this->form }}
             
-            <x-filament::button color="info" class="w-full mt-5" type="submit" wire:click="hadirAction">
+            <x-filament::button color="info" class="w-full mt-5" type="submit">
                 Hadir
             </x-filament::button>
-        </div>
+        </form>
 
         <p class="text-center text-gray-400">Nama kamu tidak ada ? Isi form registrasi terlebih dahulu yaa! <br>Klik link dibawah ini!</p>
         <x-filament::link icon="heroicon-m-sparkles" color="success" :href="route('form-registrasi')">

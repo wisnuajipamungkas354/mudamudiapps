@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 
 class FormPerizinanKegiatan extends Component implements HasForms
@@ -68,6 +69,7 @@ class FormPerizinanKegiatan extends Component implements HasForms
                     ->searchable()
                     ->live()
                     ->preload()
+                    ->required()
                     ->getSearchResultsUsing(function(string $search): array {
                         return Mudamudi::where('nama', 'LIKE', "%{$search}%")
                         ->orWhere('id', 'LIKE', "%{$search}%")

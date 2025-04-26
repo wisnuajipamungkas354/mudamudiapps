@@ -80,14 +80,14 @@ class SearchPesertaKegiatan extends Component implements HasForms
                 Select::make('search')
                     ->label('Cari Nama atau ID')
                     ->searchable()
+                    ->live()
+                    ->preload()
                     ->getSearchResultsUsing(function (string $search): array {
                         return Mudamudi::where('nama', 'LIKE', "%{$search}%")
                             ->orWhere('id', 'LIKE', "%{$search}%")
                             ->limit(10)->pluck('nama', 'id')->toArray();
                     })
                     ->getOptionLabelUsing(fn ($value): ?string => Mudamudi::find($value)?->name)
-                    ->live()
-                    ->preload()
                     ->placeholder('Masukkan Nama atau ID kamu')
                     ->afterStateUpdated(function(Set $set, $state) {
                         $resultData = Mudamudi::with('kelompok')->where('id', '=', $state)->first();
@@ -105,7 +105,8 @@ class SearchPesertaKegiatan extends Component implements HasForms
                         $set('jk', $jk);
                         $set('status', $resultData->status ?? null);
                         $set('kelompok', $kelompok['kelompok']->nm_kelompok ?? null);
-                    }),
+                    })
+                    ->required(),
                 TextInput::make('id')
                     ->label('ID')
                     ->placeholder('Terisi otomatis')
