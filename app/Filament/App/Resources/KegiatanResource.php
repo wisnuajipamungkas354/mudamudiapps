@@ -175,12 +175,16 @@ class KegiatanResource extends Resource
                         $peserta = '';
                         if($record->kategori_peserta[0] === 'age') $peserta = 'Generus Usia ' . $record->kategori_peserta[1] . ' - ' . $record->kategori_peserta[2] . ' tahun'; 
                         elseif($record->kategori_peserta[0] == 'category') {
-                            $length = count($record->kategori_peserta);
-                            for($i = 0; $i < $length; $i++) {
-                                if($i == 0) $peserta = '';
-                                elseif($i == $length - 1) $peserta .= ' dan ' . $record->kategori_peserta[$i];
-                                elseif($i == 1) $peserta .= $record->kategori_peserta[$i];
-                                else $peserta .= ', ' . $record->kategori_peserta[$i];
+                            if($record->kategori_peserta[1] == 'Lepas Pelajar') {
+                                $peserta = 'Seluruh ' . $record->kategori_peserta[1];
+                            } else {
+                                $length = count($record->kategori_peserta);
+                                for($i = 0; $i < $length; $i++) {
+                                    if($i == 0) $peserta = '';
+                                    elseif($i == $length - 1) $peserta .= ' dan ' . $record->kategori_peserta[$i];
+                                    elseif($i == 1) $peserta .= $record->kategori_peserta[$i];
+                                    else $peserta .= ', ' . $record->kategori_peserta[$i];
+                                }
                             }
                         } else {
                             $peserta = 'Seluruh Muda-mudi';

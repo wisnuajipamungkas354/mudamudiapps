@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\KegiatanResource\Pages;
 
 use App\Filament\App\Resources\KegiatanResource;
+use App\Models\Status;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Contracts\Support\Htmlable;
@@ -34,7 +35,12 @@ class CreateKegiatan extends CreateRecord
             unset($data['start']);
             unset($data['until']);
         } else {
-            $data['kategori_peserta'] = ['category', ...$data['kategori_peserta']];
+            if($data['kategori_peserta'][0] == 'Lepas Pelajar') {
+                $lepasPelajar = Status::query()->whereNot('nm_status', 'LIKE', 'Pelajar %')->pluck('nm_status');
+                $data['kategori_peserta'] = ['category', 'Lepas Pelajar', ...$lepasPelajar];
+            } else {
+                $data['kategori_peserta'] = ['category', ...$data['kategori_peserta']];
+            }
         }
 
         $data['kode_kegiatan'] = rand(1000, 9999);

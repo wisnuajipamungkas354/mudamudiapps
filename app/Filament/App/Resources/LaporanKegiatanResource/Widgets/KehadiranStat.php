@@ -31,7 +31,7 @@ class KehadiranStat extends BaseWidget
             Stat::make('Alfa', $alfaPercent . '%')
                 ->chart([1,1])
                 ->chartColor('danger')
-                ->description(($data->alfa_l + $data->alfa_l) . ' dari ' . $data->total_peserta . ' peserta')
+                ->description(($data->alfa_l + $data->alfa_p) . ' dari ' . $data->total_peserta . ' peserta')
                 ->color('danger'),
         ];
     }

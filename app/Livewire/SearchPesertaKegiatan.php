@@ -41,12 +41,16 @@ class SearchPesertaKegiatan extends Component implements HasForms
         } elseif ($this->kegiatan->kategori_peserta[0] ===  'all') {
             $this->peserta = 'Seluruh Muda-mudi';
         } elseif($this->kegiatan->kategori_peserta[0] === 'category') {
-            $length = count($this->kegiatan->kategori_peserta);
-            for($i = 0; $i < $length; $i++) {
-                if($i == 0) $peserta = '';
-                elseif($i == $length - 1) $peserta .= ' dan ' . $this->kegiatan->kategori_peserta[$i];
-                elseif($i == 1) $peserta .= $this->kegiatan->kategori_peserta[$i];
-                else $peserta .= ', ' . $this->kegiatan->kategori_peserta[$i];
+            if($this->kegiatan->kategori_peserta[1] == 'Lepas Pelajar') {
+                $peserta = 'Seluruh ' . $this->kegiatan->kategori_peserta[1];
+            } else {
+                $length = count($this->kegiatan->kategori_peserta);
+                for($i = 0; $i < $length; $i++) {
+                    if($i == 0) $peserta = '';
+                    elseif($i == $length - 1) $peserta .= ' dan ' . $this->kegiatan->kategori_peserta[$i];
+                    elseif($i == 1) $peserta .= $this->kegiatan->kategori_peserta[$i];
+                    else $peserta .= ', ' . $this->kegiatan->kategori_peserta[$i];
+                }
             }
             $this->peserta = $peserta;  
         }
@@ -131,7 +135,7 @@ class SearchPesertaKegiatan extends Component implements HasForms
             ->statePath('data');
     }
 
-    public function hadirAction() :void {
+    public function hadirAction() {
         $dataHadir = $this->form->getState();
         
         if($this->kegiatan->is_finish) {
@@ -140,6 +144,17 @@ class SearchPesertaKegiatan extends Component implements HasForms
 
         if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())){
             abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
+        }
+
+        $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
+        if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
+            return Notification::make('fail_notification')
+                ->title('Gagal!')
+                ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak bisa mengisi presensi!')
+                ->danger()
+                ->color('danger')
+                ->seconds(10)
+                ->send();
         }
 
         $now = Carbon::now();

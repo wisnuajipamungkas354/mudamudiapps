@@ -57,6 +57,7 @@ class IzinTableWidget extends BaseWidget
                 TextColumn::make('ket_izin')
                     ->label('Keterangan Izin')
             ])
-            ->defaultPaginationPageOption(5);
+            ->defaultPaginationPageOption(5)
+            ->emptyStateHeading('Tidak ada yang izin');
     }
 }

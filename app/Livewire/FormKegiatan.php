@@ -23,12 +23,16 @@ class FormKegiatan extends Component
         } elseif ($this->kegiatan->kategori_peserta[0] ===  'all') {
             $this->peserta = 'Seluruh Muda-Mudi';
         } elseif($this->kegiatan->kategori_peserta[0] === 'category') {
-            $length = count($this->kegiatan->kategori_peserta);
-            for($i = 0; $i < $length; $i++) {
-                if($i == 0) $peserta = '';
-                elseif($i == $length - 1) $peserta .= ' dan ' . $this->kegiatan->kategori_peserta[$i];
-                elseif($i == 1) $peserta .= $this->kegiatan->kategori_peserta[$i];
-                else $peserta .= ', ' . $this->kegiatan->kategori_peserta[$i];
+            if($this->kegiatan->kategori_peserta[1] == 'Lepas Pelajar') {
+                $peserta = 'Seluruh ' . $this->kegiatan->kategori_peserta[1];
+            } else {
+                $length = count($this->kegiatan->kategori_peserta);
+                for($i = 0; $i < $length; $i++) {
+                    if($i == 0) $peserta = '';
+                    elseif($i == $length - 1) $peserta .= ' dan ' . $this->kegiatan->kategori_peserta[$i];
+                    elseif($i == 1) $peserta .= $this->kegiatan->kategori_peserta[$i];
+                    else $peserta .= ', ' . $this->kegiatan->kategori_peserta[$i];
+                }
             }
             $this->peserta = $peserta;  
         }
