@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Http\Request;
 
 class LaporanKegiatanResource extends Resource
 {
@@ -40,9 +41,16 @@ class LaporanKegiatanResource extends Resource
             ->columns([
                 TextColumn::make('kegiatan.waktu_mulai')
                     ->label('Waktu Pelaksanaan')
-                    ->dateTime('H:i d/m/Y'),
+                    ->dateTime('H:i d/m/Y')
+                    ->sortable(),
                 TextColumn::make('kegiatan.nm_kegiatan')
                     ->label('Nama Kegiatan')
+                    ->searchable(),
+                TextColumn::make('tingkatan_laporan')
+                    ->label('Tingkatan')
+                    ->searchable(),
+                TextColumn::make('detail_tingkatan')
+                    ->label('')
                     ->searchable(),
                 TextColumn::make('hadir')
                     ->label('Hadir')
@@ -103,6 +111,7 @@ class LaporanKegiatanResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
+            ->defaultSort('kegiatan.waktu_mulai', 'desc')
             ->emptyStateHeading('Belum Ada Laporan Kegiatan');
     }
 
@@ -123,8 +132,8 @@ class LaporanKegiatanResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->where('tingkatan_laporan', auth()->user()->roles[0]->name)->where('detail_tingkatan', auth()->user()->detail);
-    }
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()->where('tingkatan_laporan', auth()->user()->roles[0]->name)->where('detail_tingkatan', auth()->user()->detail);
+    // }
 }
