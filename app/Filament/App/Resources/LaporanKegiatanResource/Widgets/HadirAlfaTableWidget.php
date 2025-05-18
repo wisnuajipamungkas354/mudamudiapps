@@ -19,21 +19,21 @@ class HadirAlfaTableWidget extends BaseWidget
     protected static ?string $heading = 'List Hadir & Alfa';
     protected int | string | array $columnSpan = 'full';
 
-    public $kegiatanId;
+    public $laporan;
 
     public function table(Table $table): Table
     {
         $getQuery = Presensi::query();
 
-        if(auth()->user()->roles[0]->name == 'MM Daerah') {
-            $id = Daerah::query()->where('nm_daerah', auth()->user()->detail)->value('id');
-            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->kegiatanId)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.daerah_id', $id);
-        } elseif(auth()->user()->roles[0]->name == 'MM Desa') {
-            $id = Desa::query()->where('nm_desa', auth()->user()->detail)->value('id');
-            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->kegiatanId)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.desa_id', $id);
-        } elseif(auth()->user()->roles[0]->name == 'MM Kelompok') {
-            $id = Kelompok::query()->where('nm_kelompok', auth()->user()->detail)->value('id');
-            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->kegiatanId)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.kelompok_id', $id);
+        if($this->laporan->tingkatan_laporan == 'MM Daerah') {
+            $id = Daerah::query()->where('nm_daerah', $this->laporan->detail_tingkatan)->value('id');
+            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->laporan->kegiatan_id)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.daerah_id', $id);
+        } elseif($this->laporan->tingkatan_laporan == 'MM Desa') {
+            $id = Desa::query()->where('nm_desa', $this->laporan->detail_tingkatan)->value('id');
+            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->laporan->kegiatan_id)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.desa_id', $id);
+        } elseif($this->laporan->tingkatan_laporan == 'MM Kelompok') {
+            $id = Kelompok::query()->where('nm_kelompok', $this->laporan->detail_tingkatan)->value('id');
+            $getQuery->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', '=', $this->laporan->kegiatan_id)->where('presensis.keterangan', '!=', 'Izin')->where('mudamudis.kelompok_id', $id);
         }
 
         return $table

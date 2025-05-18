@@ -51,10 +51,10 @@ class RekapKegiatan extends Page
                 'acaraMendesak' => $this->record->acara_mendesak,
             ]),
             IzinTableWidget::make([
-                'kegiatanId' => $this->record->kegiatan_id,
+                'laporan' => $this->record,
             ]),
             HadirAlfaTableWidget::make([
-                'kegiatanId' => $this->record->kegiatan_id,
+                'laporan' => $this->record,
             ])
         ];
     }
