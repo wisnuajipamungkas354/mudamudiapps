@@ -13,8 +13,8 @@ class JkHadirWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $data[0] = $this->perempuan;
-        $data[1] = $this->lakiLaki;
+        $data[0] = $this->lakiLaki;
+        $data[1] = $this->perempuan;
 
         return [
             'datasets' => [
