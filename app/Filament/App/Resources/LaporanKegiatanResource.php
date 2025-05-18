@@ -126,9 +126,9 @@ class LaporanKegiatanResource extends Resource
     {
         return [
             'index' => Pages\ListLaporanKegiatans::route('/'),
-            'create' => Pages\CreateLaporanKegiatan::route('/create'),
-            'edit' => Pages\EditLaporanKegiatan::route('/{record}/edit'),
-            'rekap-kegiatan' => Pages\RekapKegiatan::route('/{record}/rekap-kegiatan')
+            'rekap-kegiatan' => Pages\RekapKegiatan::route('/{record}/rekap-kegiatan'),
+            // 'create' => Pages\CreateLaporanKegiatan::route('/create'),
+            // 'edit' => Pages\EditLaporanKegiatan::route('/{record}/edit'),
         ];
     }
 
