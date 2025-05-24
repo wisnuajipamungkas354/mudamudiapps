@@ -44,7 +44,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\On;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use stdClass;
+use Filament\Support\Enums\ActionSize;
 
 class PresensiKegiatan extends Page implements HasTable
 {
@@ -274,15 +274,25 @@ class PresensiKegiatan extends Page implements HasTable
     public function getHeaderActions(): array
     {
         return [
+            ActionPage::make('form_presensi')
+                ->label('Link Presensi')
+                ->color('primary')
+                ->url('/presensi-mudamudi/' . $this->record->id)
+                ->outlined()
+                ->extraAttributes([
+                    'target' => '_blank',
+                ])
+                ->size(ActionSize::Small),
             ActionPage::make('save')
                 ->label('Tutup Presensi')
                 ->color('danger')
                 ->requiresConfirmation()
                 ->modalHeading('Tutup Presensi')
                 ->modalDescription('Apakah Presensi sudah benar-benar selesai? Seluruh data akan disimpan & tidak dapat diubah lagi!')
+                ->size(ActionSize::Small)
                 ->action(function() {
                     $this->savePresensi();
-                })
+                }),
         ];
     }
 
@@ -301,7 +311,7 @@ class PresensiKegiatan extends Page implements HasTable
                                     ->icon('heroicon-o-check-circle')
                                     ->iconColor('success')
                                     ->getStateUsing(function () {
-                                        if ($this->record->kategori_peserta !== 'Keputrian') {;
+                                        if ($this->record->kategori_peserta[0] !== 'Keputrian') {;
                                             $laki = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'L')->count();
                                             $perempuan = DB::table('presensis')->join('mudamudis', 'presensis.mudamudi_id', '=', 'mudamudis.id')->where('presensis.kegiatan_id', $this->record->id)->where('presensis.keterangan', 'Hadir')->where('mudamudis.jk', 'P')->count();
                                             $total = DB::table('presensis')->where('kegiatan_id', $this->record->id)->where('keterangan', 'Hadir')->count();
@@ -552,7 +562,8 @@ class PresensiKegiatan extends Page implements HasTable
             ])
             ->striped()
             ->defaultPaginationPageOption(5)
-            ->emptyStateHeading('Belum ada yang hadir');
+            ->emptyStateHeading('Belum ada yang hadir')
+            ->poll('10s');
     }
 
     public static function getEloquentQuery(): EloquentBuilder

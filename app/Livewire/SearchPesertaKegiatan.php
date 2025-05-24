@@ -146,15 +146,17 @@ class SearchPesertaKegiatan extends Component implements HasForms
             abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
         }
 
-        $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
-        if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
-            return Notification::make('fail_notification')
-                ->title('Gagal!')
-                ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak bisa mengisi presensi!')
-                ->danger()
-                ->color('danger')
-                ->seconds(10)
-                ->send();
+        if($this->kegiatan->kategori_peserta[0] === 'category') {
+            $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
+            if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
+                return Notification::make('fail_notification')
+                    ->title('Gagal!')
+                    ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak bisa mengisi presensi!')
+                    ->danger()
+                    ->color('danger')
+                    ->seconds(10)
+                    ->send();
+            }
         }
 
         $now = Carbon::now();
