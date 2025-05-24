@@ -60,7 +60,7 @@ class ListLaporanKegiatans extends ListRecords
             ];
         } else {
             return [
-                'Kelompok' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->when('tingkatan_laporan', '=', $role[0])->where('detail_tingkatan', '=', auth()->user()->detail)),
+                'Kelompok' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('tingkatan_laporan', '=', $role[0])->where('detail_tingkatan', '=', auth()->user()->detail)),
             ];
         }
     }
