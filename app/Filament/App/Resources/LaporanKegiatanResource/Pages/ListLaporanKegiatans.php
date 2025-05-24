@@ -59,7 +59,9 @@ class ListLaporanKegiatans extends ListRecords
                 'Kelompok' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('tingkatan_laporan', '=', 'MM Kelompok')->whereIn('detail_tingkatan', $listKelompok))
             ];
         } else {
-            return [];
+            return [
+                'Kelompok' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->when('tingkatan_laporan', '=', $role[0])->where('detail_tingkatan', '=', auth()->user()->detail)),
+            ];
         }
     }
 }
