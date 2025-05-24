@@ -171,18 +171,18 @@ class FormPerizinanKegiatan extends Component implements HasForms
         if(strtotime($this->kegiatan->waktu_selesai) <= strtotime(now())){
             abort(403, 'Mohon Maaf Presensi Sudah Ditutup!');
         }
-
-        $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
-        if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
-            return Notification::make('fail_notification')
-                ->title('Form Perizinan Gagal!')
-                ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak perlu izin yaa!')
-                ->danger()
-                ->color('danger')
-                ->seconds(10)
-                ->send();
+        if($this->kegiatan->kategori_peserta[0] === 'category') {
+            $kategoriPeserta = array_slice($this->kegiatan->kategori_peserta, 1);
+            if(!Mudamudi::query()->where('id', $this->data['id'])->whereIn('status', $kategoriPeserta)->exists()) {
+                return Notification::make('fail_notification')
+                    ->title('Form Perizinan Gagal!')
+                    ->body('Kamu tidak termasuk dalam kategori peserta dalam acara ini, jadi tidak perlu izin yaa!')
+                    ->danger()
+                    ->color('danger')
+                    ->seconds(10)
+                    ->send();
+            }
         }
-
         
         $formData = [
             'kegiatan_id' => $this->kegiatan->id,
