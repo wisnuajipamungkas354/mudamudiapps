@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\DesaAppResource\Pages;
 use App\Filament\App\Resources\DesaAppResource\RelationManagers;
+use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\DesaApp;
 use Filament\Forms;
@@ -78,5 +79,16 @@ class DesaAppResource extends Resource
         return [
             'index' => Pages\ManageDesaApps::route('/'),
         ];
+    }
+
+    public static function getEloquentQuery(): EloquentBuilder
+    {
+        $daerah = Daerah::where('nm_daerah', auth()->user()->detail)->value('id'); 
+        if($daerah) {
+            return parent::getEloquentQuery()->where('daerah_id', $daerah);
+        } else {
+            return parent::getEloquentQuery();
+        }
+            
     }
 }
