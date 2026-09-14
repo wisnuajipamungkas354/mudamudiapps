@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\KelompokAppResource\Pages;
 use App\Filament\App\Resources\KelompokAppResource\RelationManagers;
+use App\Models\Daerah;
 use App\Models\Kelompok;
 use App\Models\KelompokApp;
 use Filament\Forms;
@@ -16,6 +17,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KelompokAppResource extends Resource
@@ -78,4 +80,19 @@ class KelompokAppResource extends Resource
             'index' => Pages\ManageKelompokApps::route('/'),
         ];
     }
+
+    public static function getEloquentQuery(): EloquentBuilder
+    {
+        $daerah = Daerah::where('nm_daerah', auth()->user()->detail)->value('id');
+        if($daerah) {
+            return parent::getEloquentQuery()->whereHas('desa', function(Builder $query) use ($daerah) {
+		   $query->where('daerah_id', $daerah);
+                }
+	    );
+        } else {
+            return parent::getEloquentQuery();
+        }
+
+    }
+
 }
