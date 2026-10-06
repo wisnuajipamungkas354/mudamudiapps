@@ -17,7 +17,7 @@
         </form>
 
         <p class="text-center text-gray-400">Nama kamu tidak ada ? Isi form registrasi terlebih dahulu yaa! <br>Klik link dibawah ini!</p>
-        <x-filament::link icon="heroicon-m-sparkles" color="success" :href="route('form-registrasi')">
+        <x-filament::link icon="heroicon-m-sparkles" color="success" :href="route('form-registrasi', ['kegiatan' => $this->kegiatan->id])">
             Form Registrasi
         </x-filament::link>
   </section>
