@@ -82,7 +82,7 @@ class DesaAppResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): EloquentBuilder
+    public static function getEloquentQuery(): Builder
     {
         $daerah = Daerah::where('nm_daerah', auth()->user()->detail)->value('id'); 
         if($daerah) {

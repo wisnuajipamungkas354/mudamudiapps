@@ -15,11 +15,12 @@ use Illuminate\Support\Str;
 
 class RegistrasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         return view('registrasi', [
             'daerah' => Daerah::all(),
-            'status' => Status::all()
+            'status' => Status::all(),
+            'kegiatan_id' => $request->kegiatan
         ]);
     }
 

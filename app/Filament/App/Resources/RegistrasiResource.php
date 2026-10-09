@@ -126,7 +126,8 @@ class RegistrasiResource extends Resource
                                 ->send();
                         } else {
                             $data = $record->toArray();
-                            Mudamudi::create($data);
+                            unset($data['kegiatan_id']);
+                            $mudamudi = Mudamudi::create($data);
                             Riwayat::create([
                                 'daerah_id' => $data['daerah_id'],
                                 'desa_id' => $data['desa_id'],
@@ -135,6 +136,30 @@ class RegistrasiResource extends Resource
                                 'nm_user' => auth()->user()->name,
                                 'action' => 'Apply',
                             ]);
+                            if ($record->kegiatan_id) {
+                                $kegiatan = \App\Models\Kegiatan::find($record->kegiatan_id);
+                                if ($kegiatan) {
+                                    $now = \Carbon\Carbon::now();
+                                    $waktuKegiatan = \Carbon\Carbon::parse($kegiatan->waktu_mulai);
+                                    $onTime = \Carbon\Carbon::parse($kegiatan->waktu_mulai)->addMinutes(15);
+                                    $kedatangan = '';
+                                    
+                                    if ($now < $waktuKegiatan) {
+                                        $kedatangan = 'In Time';
+                                    } elseif ($waktuKegiatan <= $now && $now <= $onTime) {
+                                        $kedatangan = 'On Time';
+                                    } elseif ($onTime < $now) {
+                                        $kedatangan = 'Overtime';
+                                    }
+                                    
+                                    \App\Models\Presensi::create([
+                                        'kegiatan_id' => $kegiatan->id,
+                                        'mudamudi_id' => $mudamudi->id,
+                                        'keterangan' => 'Hadir',
+                                        'kedatangan' => $kedatangan,
+                                    ]);
+                                }
+                            }
                             $record->delete();
                             return Notification::make()
                                 ->success()
@@ -177,7 +202,8 @@ class RegistrasiResource extends Resource
                                         ->send();
                                 } else {
                                     $data = $record->toArray();
-                                    Mudamudi::create($record->toArray());
+                                    unset($data['kegiatan_id']);
+                                    $mudamudi = Mudamudi::create($data);
                                     Riwayat::create([
                                         'daerah_id' => $data['daerah_id'],
                                         'desa_id' => $data['desa_id'],
@@ -186,6 +212,30 @@ class RegistrasiResource extends Resource
                                         'nm_user' => auth()->user()->name,
                                         'action' => 'Apply',
                                     ]);
+                                    if ($record->kegiatan_id) {
+                                        $kegiatan = \App\Models\Kegiatan::find($record->kegiatan_id);
+                                        if ($kegiatan) {
+                                            $now = \Carbon\Carbon::now();
+                                            $waktuKegiatan = \Carbon\Carbon::parse($kegiatan->waktu_mulai);
+                                            $onTime = \Carbon\Carbon::parse($kegiatan->waktu_mulai)->addMinutes(15);
+                                            $kedatangan = '';
+                                            
+                                            if ($now < $waktuKegiatan) {
+                                                $kedatangan = 'In Time';
+                                            } elseif ($waktuKegiatan <= $now && $now <= $onTime) {
+                                                $kedatangan = 'On Time';
+                                            } elseif ($onTime < $now) {
+                                                $kedatangan = 'Overtime';
+                                            }
+                                            
+                                            \App\Models\Presensi::create([
+                                                'kegiatan_id' => $kegiatan->id,
+                                                'mudamudi_id' => $mudamudi->id,
+                                                'keterangan' => 'Hadir',
+                                                'kedatangan' => $kedatangan,
+                                            ]);
+                                        }
+                                    }
                                     DB::table('registrasis')->where('id', $record->id)->delete();
                                     return Notification::make()
                                         ->success()

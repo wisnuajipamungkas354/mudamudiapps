@@ -136,6 +136,9 @@
                         </label>
                     </div>
                 </div>
+                @if(isset($kegiatan_id))
+                    <input type="hidden" id="kegiatan_id" name="kegiatan_id" value="{{ $kegiatan_id }}">
+                @endif
                 <div class="flex justify-end mt-6">
                     <button type="submit"
                         class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
@@ -268,6 +271,7 @@
                             url: '/registrasi',
                             type: 'POST',
                             data: {
+                                kegiatan_id: $('#kegiatan_id').length ? $('#kegiatan_id').val() : null,
                                 daerah_id: $('#select-daerah').val(),
                                 desa_id: $('#select-desa').val(),
                                 kelompok_id: $('#select-kelompok').val(),
