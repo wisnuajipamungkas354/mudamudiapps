@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Widgets;
+namespace App\Filament\Widgets;
 
 use App\Models\Daerah;
 use App\Models\Desa;
