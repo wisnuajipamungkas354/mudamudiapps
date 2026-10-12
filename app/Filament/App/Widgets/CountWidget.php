@@ -7,12 +7,15 @@ use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
 use App\Models\Pengurus;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
 
 class CountWidget extends BaseWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 1;
 
     protected static ?string $pollingInterval = '10s';

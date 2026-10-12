@@ -42,7 +42,7 @@ class UangKasResource extends Resource
                     ->label('Nama Penginput')
                     ->placeholder('Pilih nama bendahara')
                     ->options(function () {
-                        $bendahara = Pengurus::query()->where('role', auth()->user()->roles[0]->name)->where('nm_tingkatan', auth()->user()->detail)->where('dapukan', 'Bendahara')->pluck('nm_pengurus', 'nm_pengurus');
+                        $bendahara = Pengurus::query()->where('role', auth()->user()->getAppRoleName())->where('nm_tingkatan', auth()->user()->detail)->where('dapukan', 'Bendahara')->pluck('nm_pengurus', 'nm_pengurus');
                         return $bendahara;
                     })
                     ->required(),
@@ -227,6 +227,6 @@ class UangKasResource extends Resource
 
     public static function getEloquentQuery(): EloquentBuilder
     {
-        return parent::getEloquentQuery()->where('role', auth()->user()->roles[0]->name)->where('tingkatan', auth()->user()->detail)->orderBy('tgl', 'desc');
+        return parent::getEloquentQuery()->where('role', auth()->user()->getAppRoleName())->where('tingkatan', auth()->user()->detail)->orderBy('tgl', 'desc');
     }
 }

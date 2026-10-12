@@ -6,12 +6,15 @@ use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
 
 class JenjangWidget extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 3;
     protected static ?string $heading = 'Jenjang';
     protected static ?string $maxHeight = '400px';

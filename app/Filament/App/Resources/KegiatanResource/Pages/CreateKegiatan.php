@@ -25,7 +25,7 @@ class CreateKegiatan extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data['tingkatan_kegiatan'] = auth()->user()->roles[0]->name;
+        $data['tingkatan_kegiatan'] = auth()->user()->getAppRoleName();
         $data['detail_tingkatan'] = auth()->user()->detail;
         
         if($data['filter_peserta'] === 'all') {

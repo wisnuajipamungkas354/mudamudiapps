@@ -25,7 +25,7 @@ class CreateUangKas extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data['role'] = auth()->user()->roles[0]->name;
+        $data['role'] = auth()->user()->getAppRoleName();
         $data['tingkatan'] = auth()->user()->detail;
         $data['tahun'] = Carbon::parse($data['tgl'])->format('Y');
         $data['bulan'] = Carbon::parse($data['tgl'])->format('m');

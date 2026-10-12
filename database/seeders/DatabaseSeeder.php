@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
         $this->call([
             UserSeeder::class,
+            ShieldAppPermissionSeeder::class,
             DaerahSeeder::class,
             DesaSeeder::class,
             KelompokSeeder::class,

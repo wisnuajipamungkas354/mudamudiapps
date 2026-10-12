@@ -38,7 +38,7 @@ class RegistrasiKegiatanTable extends Component implements HasForms, HasTable
     }
 
     public function getUserRole() {
-        $role = Auth::user()->roles[0]->name;
+        $role = Auth::user()->getAppRoleName();
         $result = [
             'role' => $role,
             'name' => auth()->user()->detail,

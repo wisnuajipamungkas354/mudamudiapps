@@ -55,7 +55,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasName
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        $isAdmin = $this->hasRole(['super_admin', 'Admin']);
+
+        return match ($panel->getId()) {
+            'admin'           => $isAdmin,
+            'app'             => ! $isAdmin && $this->hasRole(['MM Daerah', 'MM Desa', 'MM Kelompok']),
+            'pengurus-daerah' => ! $isAdmin && $this->hasRole('Pengurus Daerah'),
+            default           => false,
+        };
+    }
+
+    /**
+     * Nama role App milik user (MM Daerah / MM Desa / MM Kelompok), atau null.
+     * Pengganti aman untuk auth()->user()->roles[0]->name.
+     */
+    public function getAppRoleName(): ?string
+    {
+        return $this->getRoleNames()
+            ->first(fn ($name) => in_array($name, ['MM Daerah', 'MM Desa', 'MM Kelompok']));
     }
     
     public function getFilamentAvatarUrl(): ?string

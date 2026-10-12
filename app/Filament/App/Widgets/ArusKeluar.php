@@ -3,26 +3,18 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\ArusKeluar as ModelArusKeluar;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Support\Facades\Auth;
 
 class ArusKeluar extends BaseWidget
 {
-    protected static ?int $sort = 7;
+    use HasWidgetShield;
 
-    public static function canView(): bool
-    {
-        $role = Auth::user()->roles;
-        if ($role[0]->name == 'MM Kelompok') {
-            return false;
-        } else {
-            return true;
-        }
-    }
+    protected static ?int $sort = 7;
 
     public function table(Table $table): Table
     {

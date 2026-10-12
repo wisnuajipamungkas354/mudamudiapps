@@ -43,13 +43,13 @@ class RekapitulasiKegiatanDashboard extends \Filament\Pages\Dashboard
                         Select::make('role')
                             ->label('Role')
                             ->options(function () {
-                                if (auth()->user()->roles[0]->name == 'MM Daerah') {
+                                if (auth()->user()->getAppRoleName() == 'MM Daerah') {
                                     return [
                                         'MM Daerah' => 'MM Daerah',
                                         'MM Desa' => 'MM Desa',
                                         'MM Kelompok' => 'MM Kelompok'
                                     ];
-                                } elseif (auth()->user()->roles[0]->name == 'MM Desa') {
+                                } elseif (auth()->user()->getAppRoleName() == 'MM Desa') {
                                     return [
                                         'MM Desa' => 'MM Desa',
                                         'MM Kelompok' => 'MM Kelompok'
@@ -75,16 +75,16 @@ class RekapitulasiKegiatanDashboard extends \Filament\Pages\Dashboard
                                 if ($get('role') == 'MM Daerah') {
                                     return Daerah::query()->where('nm_daerah', auth()->user()->detail)->pluck('nm_daerah', 'nm_daerah');
                                 } elseif ($get('role') == 'MM Desa') {
-                                    if (auth()->user()->roles[0]->name == 'MM Daerah') {
+                                    if (auth()->user()->getAppRoleName() == 'MM Daerah') {
                                         $idDaerah = Daerah::query()->where('nm_daerah', auth()->user()->detail)->value('id');
                                         return Desa::query()->where('daerah_id', $idDaerah)->pluck('nm_desa', 'nm_desa');
                                     } else {
                                         return Desa::query()->where('nm_desa', auth()->user()->detail)->pluck('nm_desa', 'nm_desa');
                                     }
                                 } elseif ($get('role') == 'MM Kelompok') {
-                                    if (auth()->user()->roles[0]->name == 'MM Daerah') {
+                                    if (auth()->user()->getAppRoleName() == 'MM Daerah') {
                                         return Kelompok::query()->pluck('nm_kelompok', 'nm_kelompok');
-                                    } elseif (auth()->user()->roles[0]->name == 'MM Desa') {
+                                    } elseif (auth()->user()->getAppRoleName() == 'MM Desa') {
                                         $idDesa = Desa::query()->where('nm_desa', auth()->user()->detail)->value('id');
                                         return Kelompok::query()->where('desa_id', $idDesa)->pluck('nm_kelompok', 'nm_kelompok');
                                     } else {

@@ -2,14 +2,11 @@
 
 namespace App\Providers\Filament;
 
-use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 use App\Filament\App\Resources\RekapitulasiKegiatanDashboard;
 use App\Filament\App\Widgets\CountWidget;
 use App\Filament\App\Widgets\JkWidget;
 use App\Filament\App\Widgets\ArusKeluar;
 use App\Filament\App\Widgets\RiwayatUpdate;
-use App\Http\Middleware\IsAdmin;
-use App\Http\Middleware\IsUser;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -71,7 +68,6 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                IsUser::class
             ])
             ->spa();
     }

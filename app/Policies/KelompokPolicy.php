@@ -2,92 +2,17 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Kelompok;
+use App\Models\User;
 
 class KelompokPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Kelompok $kelompok): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Kelompok $kelompok): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Kelompok $kelompok): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Kelompok $kelompok): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Kelompok $kelompok): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    public function viewAny(User $user): bool        { return $user->can('view_any_kelompok::app'); }
+    public function view(User $user, Kelompok $kelompok): bool { return $user->can('view_kelompok::app'); }
+    public function create(User $user): bool         { return $user->can('create_kelompok::app'); }
+    public function update(User $user, Kelompok $kelompok): bool { return $user->can('update_kelompok::app'); }
+    public function delete(User $user, Kelompok $kelompok): bool { return $user->can('delete_kelompok::app'); }
+    public function deleteAny(User $user): bool      { return $user->can('delete_any_kelompok::app'); }
+    public function restore(User $user, Kelompok $kelompok): bool { return false; }
+    public function forceDelete(User $user, Kelompok $kelompok): bool { return false; }
 }

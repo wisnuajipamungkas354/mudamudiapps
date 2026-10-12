@@ -4,63 +4,46 @@ namespace App\Policies;
 
 use App\Models\UangKas;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UangKasPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('view_any_uang::kas');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, UangKas $uangKas): bool
     {
-        return true;
+        return $user->can('view_uang::kas');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        return true;
+        return $user->can('create_uang::kas');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, UangKas $uangKas): bool
     {
-        return true;
+        return $user->can('update_uang::kas');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, UangKas $uangKas): bool
     {
-        return true;
+        return $user->can('delete_uang::kas');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->can('delete_any_uang::kas');
+    }
+
     public function restore(User $user, UangKas $uangKas): bool
     {
-        //
+        return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, UangKas $uangKas): bool
     {
-        //
+        return false;
     }
 }

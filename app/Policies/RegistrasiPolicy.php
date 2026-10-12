@@ -4,63 +4,13 @@ namespace App\Policies;
 
 use App\Models\Registrasi;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RegistrasiPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        return $user->hasRole(['MM Kelompok', 'MM Daerah', 'MM Desa', 'Admin']);
-    }
-
-    // /**
-    //  * Determine whether the user can view the model.
-    //  */
-    // public function view(User $user, Registrasi $registrasi): bool
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Determine whether the user can create models.
-    //  */
-    // public function create(User $user): bool
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Determine whether the user can update the model.
-    //  */
-    // public function update(User $user, Registrasi $registrasi): bool
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Determine whether the user can delete the model.
-    //  */
-    // public function delete(User $user, Registrasi $registrasi): bool
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Determine whether the user can restore the model.
-    //  */
-    // public function restore(User $user, Registrasi $registrasi): bool
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Determine whether the user can permanently delete the model.
-    //  */
-    // public function forceDelete(User $user, Registrasi $registrasi): bool
-    // {
-    //     //
-    // }
+    public function viewAny(User $user): bool { return $user->can('view_any_registrasi'); }
+    public function view(User $user, Registrasi $registrasi): bool { return $user->can('view_registrasi'); }
+    public function create(User $user): bool { return $user->can('create_registrasi'); }
+    public function update(User $user, Registrasi $registrasi): bool { return $user->can('update_registrasi'); }
+    public function delete(User $user, Registrasi $registrasi): bool { return $user->can('delete_registrasi'); }
+    public function deleteAny(User $user): bool { return $user->can('delete_any_registrasi'); }
 }

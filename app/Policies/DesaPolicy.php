@@ -4,91 +4,15 @@ namespace App\Policies;
 
 use App\Models\Desa;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class DesaPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Desa $desa): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Desa $desa): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Desa $desa): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Desa $desa): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Desa $desa): bool
-    {
-        if ($user->hasRole('Admin') || $user->hasRole('MM Daerah')) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    public function viewAny(User $user): bool        { return $user->can('view_any_desa::app'); }
+    public function view(User $user, Desa $desa): bool { return $user->can('view_desa::app'); }
+    public function create(User $user): bool         { return $user->can('create_desa::app'); }
+    public function update(User $user, Desa $desa): bool { return $user->can('update_desa::app'); }
+    public function delete(User $user, Desa $desa): bool { return $user->can('delete_desa::app'); }
+    public function deleteAny(User $user): bool      { return $user->can('delete_any_desa::app'); }
+    public function restore(User $user, Desa $desa): bool { return false; }
+    public function forceDelete(User $user, Desa $desa): bool { return false; }
 }

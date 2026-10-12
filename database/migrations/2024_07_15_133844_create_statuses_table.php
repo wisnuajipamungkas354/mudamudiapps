@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('statuses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_id')->constrained()->nullOnDelete()->cascadeOnUpdate();
+            $table->foreignId('kategori_id')->nullable();
             $table->string('nm_status');
             $table->timestamps();
         });

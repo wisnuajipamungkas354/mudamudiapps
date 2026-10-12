@@ -297,6 +297,6 @@ class KegiatanResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('tingkatan_kegiatan', auth()->user()->roles[0]->name)->where('detail_tingkatan', auth()->user()->detail);
+        return parent::getEloquentQuery()->where('tingkatan_kegiatan', auth()->user()->getAppRoleName())->where('detail_tingkatan', auth()->user()->detail);
     }
 }

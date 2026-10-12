@@ -3,27 +3,18 @@
 namespace App\Filament\App\Widgets;
 
 use App\Models\Riwayat;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Support\Facades\Auth;
 
 class RiwayatUpdate extends BaseWidget
 {
+    use HasWidgetShield;
 
     protected static ?int $sort = 6;
-
-    public static function canView(): bool
-    {
-        $role = Auth::user()->roles;
-        if ($role[0]->name == 'MM Kelompok') {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     public function table(Table $table): Table
     {

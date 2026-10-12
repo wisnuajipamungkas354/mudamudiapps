@@ -6,25 +6,18 @@ use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
 
 class SensusChart extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 5;
     protected static ?string $heading = 'Sensus Muda-Mudi';
     protected int | string | array $columnSpan = 'full';
     protected static ?string $maxHeight = '400px';
-
-    public static function canView(): bool
-    {
-        $role = Auth::user()->roles;
-        if ($role[0]->name == 'MM Kelompok') {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     public function getUserRole()
     {

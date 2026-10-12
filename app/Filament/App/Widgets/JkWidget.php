@@ -6,11 +6,14 @@ use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Mudamudi;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
 
 class JkWidget extends ChartWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 2;
     protected static ?string $heading = 'Jenis Kelamin';
     protected static ?string $maxHeight = '400px';

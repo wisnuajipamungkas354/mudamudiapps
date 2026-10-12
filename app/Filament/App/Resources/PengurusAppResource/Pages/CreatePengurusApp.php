@@ -24,7 +24,7 @@ class CreatePengurusApp extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $data['role'] = auth()->user()->roles[0]->name;
+        $data['role'] = auth()->user()->getAppRoleName();
         $data['nm_tingkatan'] = auth()->user()->detail;
 
         $record = static::getModel()::create($data);

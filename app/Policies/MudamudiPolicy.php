@@ -2,86 +2,50 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Mudamudi;
-use Illuminate\Auth\Access\Response;
+use App\Models\User;
 
 class MudamudiPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('view_any_mudamudiapp');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, Mudamudi $mudamudi): bool
     {
-        return true;
+        return $user->can('view_mudamudiapp');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        if ($user->can('tambah mm')) {
-            return true;
-        } else {
-            return false;
-        }
+        return $user->can('create_mudamudiapp');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, Mudamudi $mudamudi): bool
     {
-        if ($user->can('edit mm') && $mudamudi->kelompok->nm_kelompok == $user->detail) {
-            return true;
-        } else {
-            return false;
-        }
+        return $user->can('update_mudamudiapp')
+            && $mudamudi->kelompok?->nm_kelompok === $user->detail;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
     public function delete(User $user, Mudamudi $mudamudi): bool
     {
-        if ($user->can('hapus mm') && $mudamudi->kelompok->nm_kelompok == $user->detail) {
-            return true;
-        } else {
-            return false;
-        }
+        return $user->can('delete_mudamudiapp')
+            && $mudamudi->kelompok?->nm_kelompok === $user->detail;
     }
 
     public function deleteAny(User $user): bool
     {
-        if ($user->can('hapus mm')) {
-            return true;
-        } else {
-            return false;
-        }
+        return $user->can('delete_any_mudamudiapp');
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
     public function restore(User $user, Mudamudi $mudamudi): bool
     {
-        return true;
+        return false;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
     public function forceDelete(User $user, Mudamudi $mudamudi): bool
     {
-        return true;
+        return false;
     }
 }

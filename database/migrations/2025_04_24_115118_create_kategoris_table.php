@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('nm_kategori');
             $table->timestamps();
         });
+
+        Schema::table('statuses', function (Blueprint $table) {
+            $table->foreign('kategori_id')->references('id')->on('kategoris')->nullOnDelete()->cascadeOnUpdate();
+        });
     }
 
     /**
@@ -23,6 +27,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('statuses', function (Blueprint $table) {
+            $table->dropForeign(['kategori_id']);
+        });
+
         Schema::dropIfExists('kategoris');
     }
 };

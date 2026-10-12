@@ -75,7 +75,7 @@ class PresensiKegiatan extends Page implements HasTable
     public function getUserRole()
     {
         // Mengambil Nama Role User
-        $role = Auth::user()->roles[0]->name;
+        $role = Auth::user()->getAppRoleName();
         $result = [
             'nm_role' => $role,
             'nm_tingkatan' => auth()->user()->detail,
@@ -448,7 +448,7 @@ class PresensiKegiatan extends Page implements HasTable
             ->filters([
                 SelectFilter::make('Desa')
                     ->relationship('mudamudi.desa', 'nm_desa')
-                    ->visible(fn () => auth()->user()->roles[0]->name === 'MM Daerah'),
+                    ->visible(fn () => auth()->user()->getAppRoleName() === 'MM Daerah'),
                 // SelectFilter::make('mudamudi.kelompok_id')
                 //     ->label('Kelompok')
                 //     ->options(function() {
@@ -568,6 +568,6 @@ class PresensiKegiatan extends Page implements HasTable
 
     public static function getEloquentQuery(): EloquentBuilder
     {
-        return parent::getEloquentQuery()->where('tingkatan_kegiatan', auth()->user()->roles[0]->name)->where('detail_tingkatan', auth()->user()->detail);
+        return parent::getEloquentQuery()->where('tingkatan_kegiatan', auth()->user()->getAppRoleName())->where('detail_tingkatan', auth()->user()->detail);
     }
 }
