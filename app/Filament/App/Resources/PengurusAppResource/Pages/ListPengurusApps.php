@@ -48,58 +48,60 @@ class ListPengurusApps extends ListRecords
 
     public function getUserRole()
     {
-        // Mengambil Nama Role User
-        $role = Auth::user()->roles;
+        $roleName = Auth::user()->getAppRoleName();
         $daerah = '';
         $desa = '';
         $kelompok = '';
-        // Transalasi String Field Detail yang ada di User menjadi Id 
-        if ($role[0]->name == 'MM Daerah') {
+
+        if ($roleName == 'MM Daerah') {
             $daerah = Daerah::query()->where('nm_daerah', '=', auth()->user()->detail)->first('nm_daerah');
-        } elseif ($role[0]->name == 'MM Desa') {
+        } elseif ($roleName == 'MM Desa') {
             $desa = Desa::query()->where('nm_desa', '=', auth()->user()->detail)->first(['nm_desa', 'daerah_id']);
-            $daerah = Daerah::query()->where('id', $desa->daerah_id)->first('nm_daerah');
-        } elseif ($role[0]->name == 'MM Kelompok') {
+            $daerah = $desa ? Daerah::query()->where('id', $desa->daerah_id)->first('nm_daerah') : null;
+        } elseif ($roleName == 'MM Kelompok') {
             $kelompok = Kelompok::query()->where('nm_kelompok', '=', auth()->user()->detail)->first(['nm_kelompok', 'desa_id']);
-            $desa = Desa::query()->where('id', '=', $kelompok->desa_id)->first(['nm_desa', 'daerah_id']);
-            $daerah = Daerah::query()->where('id', $desa->daerah_id)->first('nm_daerah');
+            $desa = $kelompok ? Desa::query()->where('id', '=', $kelompok->desa_id)->first(['nm_desa', 'daerah_id']) : null;
+            $daerah = $desa ? Daerah::query()->where('id', $desa->daerah_id)->first('nm_daerah') : null;
         }
 
-        // nama role, nm daerah, desa (id daerah, nm desa), kelompok (id daerah, id desa, nm kelompok) 
-        return [$role[0]->name, $daerah, $desa, $kelompok];
+        return [$roleName, $daerah, $desa, $kelompok];
     }
 
     public function getTabs(): array
     {
         $role = $this->getUserRole();
+        $baseQueryCount = $this->getResource()::getEloquentQuery()->count();
+
         if ($role[0] == 'MM Daerah') {
             return [
                 'Daerah' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[1]->nm_daerah))
-                ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
                 'Semua' => Tab::make()
-                ->badge(Pengurus::query()->count()),
+                    ->badge($baseQueryCount),
             ];
         } elseif ($role[0] == 'MM Desa') {
             return [
                 'Desa' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[2]->nm_desa))
-                ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[2]->nm_desa)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[2]->nm_desa)->count()),
                 'Daerah' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah))
-                ->badge(Pengurus::query()->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
                 'Semua' => Tab::make()
-                ->badge(Pengurus::query()->count()),
+                    ->badge($baseQueryCount),
             ];
         } elseif ($role[0] == 'MM Kelompok') {
             return [
                 'Kelompok' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[3]->nm_kelompok))
-                ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[3]->nm_kelompok)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', $role[0])->where('nm_tingkatan', '=', $role[3]->nm_kelompok)->count()),
                 'Desa' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', 'MM Desa')->where('nm_tingkatan', '=', $role[2]->nm_desa))
-                ->badge(Pengurus::query()->where('role', '=', 'MM Desa')->where('nm_tingkatan', '=', $role[2]->nm_desa)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', 'MM Desa')->where('nm_tingkatan', '=', $role[2]->nm_desa)->count()),
                 'Daerah' => Tab::make()->modifyQueryUsing(fn (Builder $query) => $query->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah))
-                ->badge(Pengurus::query()->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
+                    ->badge(Pengurus::query()->where('role', '=', 'MM Daerah')->where('nm_tingkatan', '=', $role[1]->nm_daerah)->count()),
                 'Semua' => Tab::make()
-                ->badge(Pengurus::query()->count()),
+                    ->badge($baseQueryCount),
             ];
         }
+
+        return [];
     }
 
     // public function isTableRecordSelectable(): ?Closure

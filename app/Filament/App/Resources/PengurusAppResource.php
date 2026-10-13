@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class PengurusAppResource extends Resource
@@ -143,5 +144,39 @@ class PengurusAppResource extends Resource
             'create' => Pages\CreatePengurusApp::route('/create'),
             'edit' => Pages\EditPengurusApp::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        $role = $user->getAppRoleName();
+
+        $daerahId = null;
+        if ($role === 'MM Daerah') {
+            $daerahId = \App\Models\Daerah::where('nm_daerah', $user->detail)->value('id');
+        } elseif ($role === 'MM Desa') {
+            $daerahId = \App\Models\Desa::where('nm_desa', $user->detail)->value('daerah_id');
+        } elseif ($role === 'MM Kelompok') {
+            $desaId = \App\Models\Kelompok::where('nm_kelompok', $user->detail)->value('desa_id');
+            $daerahId = \App\Models\Desa::where('id', $desaId)->value('daerah_id');
+        }
+
+        if (! $daerahId) {
+            return parent::getEloquentQuery();
+        }
+
+        $namaDaerah = \App\Models\Daerah::where('id', $daerahId)->value('nm_daerah');
+        $namaDesas = \App\Models\Desa::where('daerah_id', $daerahId)->pluck('nm_desa')->toArray();
+        $namaKelompoks = \App\Models\Kelompok::whereHas('desa', fn ($q) => $q->where('daerah_id', $daerahId))->pluck('nm_kelompok')->toArray();
+
+        return parent::getEloquentQuery()->where(function (Builder $query) use ($namaDaerah, $namaDesas, $namaKelompoks) {
+            $query->where(function (Builder $q) use ($namaDaerah) {
+                $q->where('role', 'MM Daerah')->where('nm_tingkatan', $namaDaerah);
+            })->orWhere(function (Builder $q) use ($namaDesas) {
+                $q->where('role', 'MM Desa')->whereIn('nm_tingkatan', $namaDesas);
+            })->orWhere(function (Builder $q) use ($namaKelompoks) {
+                $q->where('role', 'MM Kelompok')->whereIn('nm_tingkatan', $namaKelompoks);
+            });
+        });
     }
 }
