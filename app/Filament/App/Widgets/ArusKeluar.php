@@ -16,11 +16,32 @@ class ArusKeluar extends BaseWidget
 
     protected static ?int $sort = 7;
 
+    protected function getDaerahId(): ?int
+    {
+        $user = auth()->user();
+        $role = $user->getAppRoleName();
+
+        if ($role === 'MM Daerah') {
+            return \App\Models\Daerah::where('nm_daerah', $user->detail)->value('id');
+        } elseif ($role === 'MM Desa') {
+            return \App\Models\Desa::where('nm_desa', $user->detail)->value('daerah_id');
+        } elseif ($role === 'MM Kelompok') {
+            $desaId = \App\Models\Kelompok::where('nm_kelompok', $user->detail)->value('desa_id');
+            return \App\Models\Desa::where('id', $desaId)->value('daerah_id');
+        }
+
+        return null;
+    }
+
     public function table(Table $table): Table
     {
+        $daerahId = $this->getDaerahId();
+
         return $table
             ->query(
-                ModelArusKeluar::query()->latest()
+                ModelArusKeluar::query()
+                    ->when($daerahId, fn ($q) => $q->where('daerah_id', $daerahId))
+                    ->latest()
             )
             ->columns([
                 TextColumn::make('updated_at')
