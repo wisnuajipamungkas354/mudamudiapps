@@ -345,7 +345,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
 
         $pesan = "🙏🏻 السلام عليكم ورحمة الله وبركاته 🙏🏻\n\n"
             . "📢 Mengingatkan\n"
-            . "Kepada seluruh Pengurus Muda/i, Mohon Amal sholih untuk mengecek Data Registrasi Muda/i Baru di laman https://ppgkartim.com/registrasis.\n\n"
+            . "Kepada seluruh Pengurus Muda/i Kelompok, Mohon Amal sholih untuk mengecek Data Registrasi Muda/i Baru di laman https://ppgkartim.com/registrasis.\n\n"
             . "Adapun List Data Registrasi Muda/i Baru yang perlu di konfirmasi sebagai berikut :\n\n"
             . "{$bodyList}\n\n"
             . "Aksi :\n"
