@@ -350,7 +350,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
             . "{$bodyList}\n\n"
             . "Aksi :\n"
             . "✅ Apply : Data registrasi benar & boleh masuk database\n"
-            . "❌ Hapus : Jika data registrasi tidak benar, tidak dikenali atau data sebelumnya sudah ada (duplikat)\n\n"
+            . "❌ Reject : Jika data registrasi tidak benar, tidak dikenali atau data sebelumnya sudah ada (duplikat)\n\n"
             . "Semoga Allah paring lancar, sukses dan barokah\n\n"
             . "الحمدلله جزاكم الله خيرا";
 
