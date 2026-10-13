@@ -346,12 +346,12 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
         $pesan = "🙏🏻 السلام عليكم ورحمة الله وبركاته 🙏🏻\n\n"
             . "📢 Mengingatkan\n"
             . "Kepada seluruh Pengurus Muda/i, Mohon Amal sholih untuk mengecek Data Registrasi Muda/i Baru di laman https://ppgkartim.com/registrasis.\n\n"
-            . "Adapun List Data Registrasi Muda/i Baru sebagai berikut :\n\n"
+            . "Adapun List Data Registrasi Muda/i Baru yang perlu di konfirmasi sebagai berikut :\n\n"
             . "{$bodyList}\n\n"
             . "Aksi :\n"
             . "✅ Apply : Data registrasi benar & masuk database\n"
             . "❌ Hapus : Jika data registrasi tidak benar, tidak dikenali atau data sebelumnya sudah ada (duplikat)\n\n"
-            . "Semoga Allah paring kesemangatan, aman, selamat, lancar, sukses dan barokah\n\n"
+            . "Semoga Allah paring lancar, sukses dan barokah\n\n"
             . "الحمدلله جزاكم الله خيرا";
 
         return 'https://api.whatsapp.com/send?text=' . rawurlencode($pesan);
