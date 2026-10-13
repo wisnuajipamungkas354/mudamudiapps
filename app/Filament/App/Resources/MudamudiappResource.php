@@ -428,7 +428,10 @@ class MudamudiappResource extends Resource
                         }
 
                         // Delete QR-Code Images before record has been deleted
-                        Storage::delete('public/qr-images/mudamudi/' . $record->id . '.png');
+                        $qrPath = 'qr-images/mudamudi/' . $record->id . '.png';
+                        if (Storage::disk('public')->exists($qrPath)) {
+                            Storage::disk('public')->delete($qrPath);
+                        }
 
                         $record->delete();
 

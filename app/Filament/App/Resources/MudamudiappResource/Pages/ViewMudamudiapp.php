@@ -20,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ViewMudamudiapp extends ViewRecord
@@ -101,7 +102,8 @@ class ViewMudamudiapp extends ViewRecord
                             'Menikah' => 'Menikah',
                             'Meninggal' => 'Meninggal',
                             'Pindah Sambung Dalam Daerah' => 'Pindah Sambung Dalam Daerah',
-                            'Pindah Sambung Keluar Daerah' => 'Pindah Sambung Keluar Daerah'
+                            'Pindah Sambung Keluar Daerah' => 'Pindah Sambung Keluar Daerah',
+                            'Data Duplikat' => 'Data Duplikat',
                         ])
                         ->live()
                         ->required(),
@@ -126,17 +128,11 @@ class ViewMudamudiapp extends ViewRecord
                 ])
                 ->modalSubmitActionLabel('Hapus Data')
                 ->modalCancelActionLabel('Batal')
-                ->action(function (array $data, Mudamudi $record) {
+                ->successNotificationTitle('Berhasil Dihapus')
+                ->successRedirectUrl(fn (): string => MudamudiappResource::getUrl('index'))
+                ->action(function (array $data, Mudamudi $record, Actions\DeleteAction $action) {
                     $dataRecord = $record->toArray();
-                    ArusKeluar::create([
-                        'daerah_id' => $dataRecord['daerah_id'],
-                        'desa_id' => $dataRecord['desa_id'],
-                        'kelompok_id' => $dataRecord['kelompok_id'],
-                        'nama' => $dataRecord['nama'],
-                        'jk' => $dataRecord['jk'],
-                        'usia' => $dataRecord['usia'],
-                        'keterangan' => $data['keterangan'],
-                    ]);
+
                     if ($data['keterangan'] == 'Pindah Sambung Dalam Daerah') {
                         Registrasi::create([
                             'daerah_id' => $dataRecord['daerah_id'],
@@ -153,11 +149,28 @@ class ViewMudamudiapp extends ViewRecord
                             'siap_nikah' => $dataRecord['siap_nikah'],
                         ]);
                     }
+
+                    if ($data['keterangan'] != 'Data Duplikat') {
+                        ArusKeluar::create([
+                            'daerah_id' => $dataRecord['daerah_id'],
+                            'desa_id' => $dataRecord['desa_id'],
+                            'kelompok_id' => $dataRecord['kelompok_id'],
+                            'nama' => $dataRecord['nama'],
+                            'jk' => $dataRecord['jk'],
+                            'usia' => $dataRecord['usia'],
+                            'keterangan' => $data['keterangan'],
+                        ]);
+                    }
+
+                    // Hapus gambar QR jika ada di storage
+                    $qrPath = 'qr-images/mudamudi/' . $record->id . '.png';
+                    if (Storage::disk('public')->exists($qrPath)) {
+                        Storage::disk('public')->delete($qrPath);
+                    }
+
                     $record->delete();
-                    Notification::make()
-                        ->success()
-                        ->title('Berhasil Dihapus')
-                        ->send();
+
+                    $action->success();
                 }),
         ];
     }
