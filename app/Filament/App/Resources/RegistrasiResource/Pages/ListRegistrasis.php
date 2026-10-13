@@ -14,7 +14,13 @@ class ListRegistrasis extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Actions\CreateAction::make(),
+            Actions\Action::make('share')
+                ->label('Share')
+                ->icon('heroicon-o-share')
+                ->color('success')
+                ->openUrlInNewTab()
+                ->url(fn (): string => RegistrasiResource::getShareWhatsappUrl())
+                ->visible(fn (): bool => auth()->user()?->can('share_registrasi') ?? false),
         ];
     }
 

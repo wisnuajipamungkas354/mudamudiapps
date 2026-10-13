@@ -41,6 +41,7 @@ class ShieldAppPermissionSeeder extends Seeder
         foreach (self::WIDGETS as $widget) {
             Permission::firstOrCreate(['name' => $widget, 'guard_name' => 'web']);
         }
+        Permission::firstOrCreate(['name' => 'share_registrasi', 'guard_name' => 'web']);
 
         // 2. Default untuk semua role MM
         $common = [
@@ -49,7 +50,7 @@ class ShieldAppPermissionSeeder extends Seeder
             ...$this->crud('uang::kas'),
             ...$this->crud('laporan::kegiatan'),
             'view_any_kegiatan', 'view_kegiatan', 'create_kegiatan', 'delete_kegiatan', 'delete_any_kegiatan',
-            'view_any_registrasi',
+            'view_any_registrasi', 'share_registrasi',
             'widget_CountWidget', 'widget_JkWidget', 'widget_JenjangWidget', 'widget_StatusWidget',
         ];
 

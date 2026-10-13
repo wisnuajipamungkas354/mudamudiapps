@@ -10,6 +10,7 @@ use App\Models\Kelompok;
 use App\Models\Mudamudi;
 use App\Models\Registrasi;
 use App\Models\Riwayat;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Actions\Modal\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class RegistrasiResource extends Resource
+class RegistrasiResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = Registrasi::class;
 
@@ -31,6 +32,19 @@ class RegistrasiResource extends Resource
 
     protected static ?string $navigationGroup = 'Database';
     protected static ?string $navigationLabel = 'Registrasi';
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'share',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -266,41 +280,80 @@ class RegistrasiResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $role = Auth::user()->roles;
-        $daerah = '';
-        $desa = '';
-        $kelompok = '';
-        // Transalasi String Field Detail yang ada di User menjadi Id 
-        if ($role[0]->name == 'MM Daerah') {
-            $daerah = Daerah::query()->where('nm_daerah', '=', auth()->user()->detail)->first(['id']);
-            return static::getModel()::where('daerah_id', $daerah->id)->count();
-        } elseif ($role[0]->name == 'MM Desa') {
-            $desa = Desa::query()->where('nm_desa', '=', auth()->user()->detail)->first(['id', 'daerah_id']);
-            return static::getModel()::where('daerah_id', $desa->daerah_id)->where('desa_id', $desa->id)->count();
-        } elseif ($role[0]->name == 'MM Kelompok') {
-            $kelompok = Kelompok::query()->where('nm_kelompok', '=', auth()->user()->detail)->first(['id', 'desa_id']);
-            $desa = Desa::query()->where('id', '=', $kelompok->desa_id)->first(['id', 'daerah_id']);
-            return static::getModel()::where('daerah_id', $desa->daerah_id)->where('desa_id', $desa->id)->where('kelompok_id', $kelompok->id)->count();
-        }
+        $count = static::getEloquentQuery()->count();
+
+        return $count > 0 ? (string) $count : null;
     }
     
     public static function getEloquentQuery(): Builder
     {
-        $role = Auth::user()->roles;
-        $daerah = '';
-        $desa = '';
-        $kelompok = '';
-        // Transalasi String Field Detail yang ada di User menjadi Id 
-        if ($role[0]->name == 'MM Daerah') {
-            $daerah = Daerah::query()->where('nm_daerah', '=', auth()->user()->detail)->first(['id']);
-            return parent::getEloquentQuery()->where('daerah_id', $daerah->id);
-        } elseif ($role[0]->name == 'MM Desa') {
-            $desa = Desa::query()->where('nm_desa', '=', auth()->user()->detail)->first(['id', 'daerah_id']);
-            return parent::getEloquentQuery()->where('daerah_id', $desa->daerah_id)->where('desa_id', $desa->id);
-        } elseif ($role[0]->name == 'MM Kelompok') {
-            $kelompok = Kelompok::query()->where('nm_kelompok', '=', auth()->user()->detail)->first(['id', 'desa_id']);
-            $desa = Desa::query()->where('id', '=', $kelompok->desa_id)->first(['id', 'daerah_id']);
-            return parent::getEloquentQuery()->where('daerah_id', $desa->daerah_id)->where('desa_id', $desa->id)->where('kelompok_id', $kelompok->id);
+        $user = Auth::user();
+        if (! $user) {
+            return parent::getEloquentQuery();
         }
+
+        $roleName = method_exists($user, 'getAppRoleName') ? $user->getAppRoleName() : null;
+        if (! $roleName && $user->roles->isNotEmpty()) {
+            $roleName = $user->roles[0]->name;
+        }
+
+        if ($roleName === 'MM Daerah') {
+            $daerah = Daerah::query()->where('nm_daerah', '=', $user->detail)->first(['id']);
+            return parent::getEloquentQuery()->where('daerah_id', $daerah?->id);
+        } elseif ($roleName === 'MM Desa') {
+            $desa = Desa::query()->where('nm_desa', '=', $user->detail)->first(['id', 'daerah_id']);
+            return parent::getEloquentQuery()->where('daerah_id', $desa?->daerah_id)->where('desa_id', $desa?->id);
+        } elseif ($roleName === 'MM Kelompok') {
+            $kelompok = Kelompok::query()->where('nm_kelompok', '=', $user->detail)->first(['id', 'desa_id']);
+            $desa = $kelompok ? Desa::query()->where('id', '=', $kelompok->desa_id)->first(['id', 'daerah_id']) : null;
+            return parent::getEloquentQuery()->where('daerah_id', $desa?->daerah_id)->where('desa_id', $desa?->id)->where('kelompok_id', $kelompok?->id);
+        }
+
+        return parent::getEloquentQuery();
+    }
+
+    public static function getShareWhatsappUrl(): string
+    {
+        $registrasis = static::getEloquentQuery()
+            ->with(['desa', 'kelompok'])
+            ->get();
+
+        $groupedByDesa = $registrasis->groupBy(function ($item) {
+            return $item->desa?->nm_desa ?? 'Lainnya';
+        });
+
+        $listText = [];
+
+        foreach ($groupedByDesa as $nmDesa => $itemsInDesa) {
+            $desaSection = "*{$nmDesa}*";
+
+            $groupedByKelompok = $itemsInDesa->groupBy(function ($item) {
+                return $item->kelompok?->nm_kelompok ?? 'Lainnya';
+            });
+
+            foreach ($groupedByKelompok as $nmKelompok => $itemsInKelompok) {
+                $count = $itemsInKelompok->count();
+                $desaSection .= "\n- {$nmKelompok} : {$count}";
+            }
+
+            $listText[] = $desaSection;
+        }
+
+        $bodyList = ! empty($listText)
+            ? implode("\n\n", $listText)
+            : "_(Tidak ada data registrasi baru)_";
+
+        $pesan = "🙏🏻 السلام عليكم ورحمة الله وبركاته 🙏🏻\n\n"
+            . "📢 Mengingatkan\n"
+            . "Kepada seluruh Pengurus Muda/i, Mohon Amal sholih untuk mengecek Data Registrasi Muda/i Baru di laman https://ppgkartim.com/registrasis.\n\n"
+            . "Adapun List Data Registrasi Muda/i Baru sebagai berikut :\n\n"
+            . "{$bodyList}\n\n"
+            . "Aksi :\n"
+            . "✅ Apply : Data registrasi benar & masuk database\n"
+            . "❌ Hapus : Jika data registrasi tidak benar, tidak dikenali atau data sebelumnya sudah ada (duplikat)\n\n"
+            . "Semoga Allah paring kesemangatan, aman, selamat, lancar, sukses dan barokah\n\n"
+            . "الحمدلله جزاكم الله خيرا";
+
+        return 'https://api.whatsapp.com/send?text=' . rawurlencode($pesan);
     }
 }
