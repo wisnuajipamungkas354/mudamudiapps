@@ -34,5 +34,9 @@ class AppServiceProvider extends ServiceProvider
 
             return true;
         });
+
+        Gate::define('viewLogViewer', function ($user) {
+            return $user && ($user->is_admin === true || $user->hasRole(['super_admin', 'Admin']));
+        });
     }
 }
