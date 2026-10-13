@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 use Illuminate\Support\Facades\Gate;
+use Opcodes\LogViewer\Facades\LogViewer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,8 +36,16 @@ class AppServiceProvider extends ServiceProvider
             return true;
         });
 
-        Gate::define('viewLogViewer', function ($user) {
-            return $user && ($user->is_admin === true || $user->hasRole(['super_admin', 'Admin']));
+        LogViewer::auth(function ($request) {
+            $user = $request->user();
+
+            return $user && ($user->is_admin == true || (method_exists($user, 'hasRole') && $user->hasRole(['super_admin', 'Admin'])));
+        });
+
+        Gate::define('viewLogViewer', function ($user = null) {
+            $user = $user ?? auth()->user();
+
+            return $user && ($user->is_admin == true || (method_exists($user, 'hasRole') && $user->hasRole(['super_admin', 'Admin'])));
         });
     }
 }
