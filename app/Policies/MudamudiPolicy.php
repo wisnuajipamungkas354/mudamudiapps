@@ -24,14 +24,34 @@ class MudamudiPolicy
 
     public function update(User $user, Mudamudi $mudamudi): bool
     {
-        return $user->can('update_mudamudiapp')
-            && $mudamudi->kelompok?->nm_kelompok === $user->detail;
+        if (! $user->can('update_mudamudiapp')) {
+            return false;
+        }
+
+        $role = $user->getAppRoleName();
+
+        return match ($role) {
+            'MM Daerah'   => $mudamudi->daerah?->nm_daerah === $user->detail,
+            'MM Desa'     => $mudamudi->desa?->nm_desa === $user->detail,
+            'MM Kelompok' => $mudamudi->kelompok?->nm_kelompok === $user->detail,
+            default       => false,
+        };
     }
 
     public function delete(User $user, Mudamudi $mudamudi): bool
     {
-        return $user->can('delete_mudamudiapp')
-            && $mudamudi->kelompok?->nm_kelompok === $user->detail;
+        if (! $user->can('delete_mudamudiapp')) {
+            return false;
+        }
+
+        $role = $user->getAppRoleName();
+
+        return match ($role) {
+            'MM Daerah'   => $mudamudi->daerah?->nm_daerah === $user->detail,
+            'MM Desa'     => $mudamudi->desa?->nm_desa === $user->detail,
+            'MM Kelompok' => $mudamudi->kelompok?->nm_kelompok === $user->detail,
+            default       => false,
+        };
     }
 
     public function deleteAny(User $user): bool
