@@ -3,12 +3,17 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\PengurusAppResource\Pages;
+use App\Models\Daerah;
+use App\Models\Desa;
+use App\Models\Kelompok;
+use App\Models\Mudamudi;
 use App\Models\Pengurus;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -27,15 +32,108 @@ class PengurusAppResource extends Resource
 
     protected static ?string $navigationGroup = 'Database';
 
+    public static function getScopedMudaMudiQuery(): Builder
+    {
+        $query = Mudamudi::query()->with(['kelompok', 'desa', 'daerah']);
+        $user = auth()->user();
+
+        $roleName = $user->roles?->first()?->name;
+        if (! $user || ! $roleName) {
+            return $query;
+        }
+        $detail = $user->detail;
+
+        if ($roleName === 'MM Kelompok') {
+            $kelompok = Kelompok::where('nm_kelompok', $detail)->first(['id']);
+            if ($kelompok) {
+                $query->where('kelompok_id', $kelompok->id);
+            }
+        } elseif ($roleName === 'MM Desa') {
+            $desa = Desa::where('nm_desa', $detail)->first(['id', 'daerah_id']);
+            if ($desa) {
+                $query->where('desa_id', $desa->id);
+            }
+        } elseif ($roleName === 'MM Daerah') {
+            $daerah = Daerah::where('nm_daerah', $detail)->first(['id']);
+            if ($daerah) {
+                $query->where('daerah_id', $daerah->id);
+            }
+        }
+
+        return $query;
+    }
+
+    public static function formatMudaMudiLabel(Mudamudi $mudaMudi): string
+    {
+        $roleName = auth()->user()?->roles?->first()?->name;
+
+        if ($roleName === 'MM Kelompok') {
+            return "{$mudaMudi->nama} (ID: {$mudaMudi->id})";
+        }
+
+        if ($roleName === 'MM Desa') {
+            $kelompokName = $mudaMudi->kelompok?->nm_kelompok ?? '-';
+            return "{$mudaMudi->nama} - Kelompok {$kelompokName} (ID: {$mudaMudi->id})";
+        }
+
+        $desaName = $mudaMudi->desa?->nm_desa ?? '-';
+        $kelompokName = $mudaMudi->kelompok?->nm_kelompok ?? '-';
+        return "{$mudaMudi->nama} - Desa {$desaName}, Kelompok {$kelompokName} (ID: {$mudaMudi->id})";
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Card::make()
                     ->schema([
+                        Select::make('cari_mudamudi')
+                            ->label('Cari Data Muda-Mudi')
+                            ->placeholder('Ketik nama atau ID untuk mencari data...')
+                            ->helperText('Pilih nama dari database untuk mengisi Nama Pengurus & Jenis Kelamin secara otomatis.')
+                            ->searchable()
+                            ->searchPrompt('Ketik nama atau ID untuk mencari...')
+                            ->searchingMessage('Mencari data muda-mudi...')
+                            ->noSearchResultsMessage('Data muda-mudi tidak ditemukan.')
+                            ->getSearchResultsUsing(function (string $search): array {
+                                return static::getScopedMudaMudiQuery()
+                                    ->where(function (Builder $query) use ($search) {
+                                        $query->where('nama', 'LIKE', "%{$search}%")
+                                            ->orWhere('id', 'LIKE', "%{$search}%");
+                                    })
+                                    ->limit(20)
+                                    ->get()
+                                    ->mapWithKeys(fn (Mudamudi $item) => [$item->id => static::formatMudaMudiLabel($item)])
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value): ?string {
+                                $m = Mudamudi::with(['kelompok', 'desa'])->find($value);
+                                return $m ? static::formatMudaMudiLabel($m) : null;
+                            })
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, $state) {
+                                if (! $state) {
+                                    return;
+                                }
+
+                                $mudaMudi = Mudamudi::find($state);
+                                if ($mudaMudi) {
+                                    $set('nm_pengurus', $mudaMudi->nama);
+                                    $set('jk', $mudaMudi->jk);
+
+                                    $prev = Pengurus::where('nm_pengurus', $mudaMudi->nama)
+                                        ->whereNotNull('no_hp')
+                                        ->latest()
+                                        ->first();
+                                    if ($prev && $prev->no_hp) {
+                                        $set('no_hp', $prev->no_hp);
+                                    }
+                                }
+                            })
+                            ->dehydrated(false),
                         TextInput::make('nm_pengurus')
                             ->label('Nama Pengurus')
-                            ->placeholder('Isi Nama Lengkap')
+                            ->placeholder('Isi Nama Lengkap (terisi otomatis saat memilih pencarian di atas)')
                             ->required()
                             ->maxLength(255)
                             ->dehydrateStateUsing(fn ($state) => Str::title($state)),
