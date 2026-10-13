@@ -146,7 +146,8 @@ class KegiatanResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('waktu_mulai')
                     ->label('Waktu')
-                    ->dateTime('H:i d/m/Y'),
+                    ->dateTime('H:i d/m/Y')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('nm_kegiatan')
                     ->label('Judul Kegiatan'),
                 Tables\Columns\TextColumn::make('tempat_kegiatan')
@@ -275,6 +276,7 @@ class KegiatanResource extends Resource
                         ->modalCancelActionLabel('Batal'),
                 ]),
             ])
+            ->defaultSort('waktu_mulai', 'desc')
             ->emptyStateHeading('Belum Ada Kegiatan');
     }
 
