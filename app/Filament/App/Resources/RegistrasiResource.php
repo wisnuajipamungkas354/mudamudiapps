@@ -332,7 +332,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
             });
 
             foreach ($groupedByKelompok as $nmKelompok => $itemsInKelompok) {
-                $count = $itemsInKelompok->count();
+                $count = $itemsInKelompok->count() . "orang";
                 $desaSection .= "\n- {$nmKelompok} : {$count}";
             }
 
@@ -349,7 +349,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
             . "Adapun List Data Registrasi Muda/i Baru yang perlu di konfirmasi sebagai berikut :\n\n"
             . "{$bodyList}\n\n"
             . "Aksi :\n"
-            . "✅ Apply : Data registrasi benar & masuk database\n"
+            . "✅ Apply : Data registrasi benar & boleh masuk database\n"
             . "❌ Hapus : Jika data registrasi tidak benar, tidak dikenali atau data sebelumnya sudah ada (duplikat)\n\n"
             . "Semoga Allah paring lancar, sukses dan barokah\n\n"
             . "الحمدلله جزاكم الله خيرا";
