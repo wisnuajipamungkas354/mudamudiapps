@@ -42,6 +42,8 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
             'update',
             'delete',
             'delete_any',
+            'apply',
+            'reject',
             'share',
         ];
     }
@@ -126,12 +128,19 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                 Tables\Actions\Action::make('Apply')
                     ->icon('heroicon-s-check')
                     ->color('success')
+                    ->visible(fn (): bool => auth()->user()?->can('apply_registrasi') ?? false)
                     ->requiresConfirmation()
                     ->modalHeading('Konfirmasi Data')
                     ->modalDescription('Apakah kamu yakin data yang diregistrasi adalah benar Muda-mudimu ?')
                     ->modalSubmitActionLabel('Ya Benar')
                     ->modalCancelActionLabel('Batal')
                     ->action(function (Registrasi $record) {
+                        if (! auth()->user()?->can('apply_registrasi')) {
+                            return Notification::make()
+                                ->danger()
+                                ->title('Anda tidak memiliki izin untuk mengonfirmasi registrasi ini.')
+                                ->send();
+                        }
                        if (DB::table('mudamudis')->where('nama', $record->nama)->where('tgl_lahir', $record->tgl_lahir)->exists()) {
                             return Notification::make()
                                 ->danger()
@@ -182,6 +191,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->label('Reject')
+                    ->visible(fn (Registrasi $record): bool => auth()->user()?->can('reject_registrasi') || auth()->user()?->can('delete_registrasi'))
                     ->modalHeading('Hapus Data Registrasi')
                     ->modalDescription('Apakah kamu yakin ingin menghapus data registrasi ini ?')
                     ->modalSubmitActionLabel('Hapus')
@@ -191,6 +201,7 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Reject All')
+                        ->visible(fn (): bool => auth()->user()?->can('reject_registrasi') || auth()->user()?->can('delete_any_registrasi'))
                         ->modalHeading('Hapus Data Registrasi')
                         ->modalDescription('Apakah kamu yakin ingin menghapus data registrasi ini ?')
                         ->modalSubmitActionLabel('Hapus')
@@ -198,12 +209,19 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                     Tables\Actions\BulkAction::make('Apply All')
                         ->icon('heroicon-s-check')
                         ->color('success')
+                        ->visible(fn (): bool => auth()->user()?->can('apply_registrasi') ?? false)
                         ->requiresConfirmation()
                         ->modalHeading('Konfirmasi Data')
                         ->modalDescription('Apakah kamu yakin data yang diregistrasi adalah benar Muda-mudimu ?')
                         ->modalSubmitActionLabel('Ya Benar')
                         ->modalCancelActionLabel('Batal')
                         ->action(function (Collection $records) {
+                            if (! auth()->user()?->can('apply_registrasi')) {
+                                return Notification::make()
+                                    ->danger()
+                                    ->title('Anda tidak memiliki izin untuk mengonfirmasi registrasi ini.')
+                                    ->send();
+                            }
                             foreach ($records as $record) {
                                 if (DB::table('mudamudis')->where('nama', $record->nama)->where('tgl_lahir', $record->tgl_lahir)->exists()) {
                                     return Notification::make()

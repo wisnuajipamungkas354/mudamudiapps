@@ -42,6 +42,8 @@ class ShieldAppPermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $widget, 'guard_name' => 'web']);
         }
         Permission::firstOrCreate(['name' => 'share_registrasi', 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'apply_registrasi', 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'reject_registrasi', 'guard_name' => 'web']);
 
         // 2. Default untuk semua role MM
         $common = [
@@ -59,8 +61,8 @@ class ShieldAppPermissionSeeder extends Seeder
 
         $map = [
             'MM Daerah'   => [...$common, ...$nonKelompokWidgets, ...$this->crud('desa::app'), ...$this->crud('kelompok::app')],
-            'MM Desa'     => [...$common, ...$nonKelompokWidgets],
-            'MM Kelompok' => $common,
+            'MM Desa'     => [...$common, ...$nonKelompokWidgets, 'apply_registrasi', 'reject_registrasi'],
+            'MM Kelompok' => [...$common, 'apply_registrasi', 'reject_registrasi'],
         ];
 
         foreach ($map as $roleName => $permissions) {
