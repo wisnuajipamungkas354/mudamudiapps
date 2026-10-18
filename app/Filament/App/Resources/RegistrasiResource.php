@@ -126,7 +126,6 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                 Tables\Actions\Action::make('Apply')
                     ->icon('heroicon-s-check')
                     ->color('success')
-                    ->visible(fn() => Auth::user()->getAppRoleName() == 'MM Daerah' ? false : true)
                     ->requiresConfirmation()
                     ->modalHeading('Konfirmasi Data')
                     ->modalDescription('Apakah kamu yakin data yang diregistrasi adalah benar Muda-mudimu ?')
@@ -183,7 +182,6 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                     }),
                 Tables\Actions\DeleteAction::make()
                     ->label('Reject')
-                    ->visible(fn() => Auth::user()->getAppRoleName() == 'MM Daerah' ? false : true)
                     ->modalHeading('Hapus Data Registrasi')
                     ->modalDescription('Apakah kamu yakin ingin menghapus data registrasi ini ?')
                     ->modalSubmitActionLabel('Hapus')
@@ -193,7 +191,6 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->label('Reject All')
-                        ->visible(fn() => Auth::user()->getAppRoleName() == 'MM Daerah' ? false : true)
                         ->modalHeading('Hapus Data Registrasi')
                         ->modalDescription('Apakah kamu yakin ingin menghapus data registrasi ini ?')
                         ->modalSubmitActionLabel('Hapus')
@@ -201,7 +198,6 @@ class RegistrasiResource extends Resource implements HasShieldPermissions
                     Tables\Actions\BulkAction::make('Apply All')
                         ->icon('heroicon-s-check')
                         ->color('success')
-                        ->visible(fn() => Auth::user()->getAppRoleName() == 'MM Daerah' ? false : true)
                         ->requiresConfirmation()
                         ->modalHeading('Konfirmasi Data')
                         ->modalDescription('Apakah kamu yakin data yang diregistrasi adalah benar Muda-mudimu ?')
