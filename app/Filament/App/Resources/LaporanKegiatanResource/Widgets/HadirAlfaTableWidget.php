@@ -6,6 +6,8 @@ use App\Models\Daerah;
 use App\Models\Desa;
 use App\Models\Kelompok;
 use App\Models\Presensi;
+use App\Services\RekapKegiatanExportService;
+use Filament\Forms\Components\Radio;
 use Filament\Tables;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -75,6 +77,64 @@ class HadirAlfaTableWidget extends BaseWidget
                         'Overtime' => 'Overtime',
                         'Tidak Datang' => 'Tidak Datang',
                     ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('export_hadir')
+                    ->label('Export Hadir')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->modalHeading('Export Data Peserta Hadir')
+                    ->modalSubmitActionLabel('Download')
+                    ->form([
+                        Radio::make('format')
+                            ->label('Pilih Format File')
+                            ->options([
+                                'xlsx' => 'Excel (.xlsx)',
+                                'csv' => 'CSV (.csv)',
+                            ])
+                            ->default('xlsx')
+                            ->inline()
+                            ->required(),
+                    ])
+                    ->action(fn(array $data) => RekapKegiatanExportService::export($this->laporan, 'Hadir', $data['format'])),
+
+                Tables\Actions\Action::make('export_alfa')
+                    ->label('Export Alfa')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('danger')
+                    ->modalHeading('Export Data Peserta Alfa')
+                    ->modalSubmitActionLabel('Download')
+                    ->form([
+                        Radio::make('format')
+                            ->label('Pilih Format File')
+                            ->options([
+                                'xlsx' => 'Excel (.xlsx)',
+                                'csv' => 'CSV (.csv)',
+                            ])
+                            ->default('xlsx')
+                            ->inline()
+                            ->required(),
+                    ])
+                    ->action(fn(array $data) => RekapKegiatanExportService::export($this->laporan, 'Alfa', $data['format'])),
+
+                Tables\Actions\Action::make('export_semua')
+                    ->label('Export Hadir & Alfa')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->color('gray')
+                    ->modalHeading('Export Semua (Hadir & Alfa)')
+                    ->modalSubmitActionLabel('Download')
+                    ->form([
+                        Radio::make('format')
+                            ->label('Pilih Format File')
+                            ->options([
+                                'xlsx' => 'Excel (.xlsx)',
+                                'csv' => 'CSV (.csv)',
+                            ])
+                            ->default('xlsx')
+                            ->inline()
+                            ->required(),
+                    ])
+                    ->action(fn(array $data) => RekapKegiatanExportService::export($this->laporan, null, $data['format'])),
             ])
             ->emptyStateHeading('Tidak ada data presensi')
             ->defaultPaginationPageOption(5);

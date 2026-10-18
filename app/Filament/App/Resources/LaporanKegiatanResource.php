@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\LaporanKegiatanResource\Pages;
 use App\Filament\App\Resources\LaporanKegiatanResource\RelationManagers;
 use App\Models\LaporanKegiatan;
+use App\Services\RekapKegiatanExportService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -64,7 +65,31 @@ class LaporanKegiatanResource extends Resource
                             $hadirPercent = 0;
                         }
                         return $totalHadir . ' peserta / ' . $hadirPercent . '%';
-                    }),
+                    })
+                    ->tooltip('Klik untuk export data Hadir (Excel / CSV)')
+                    ->action(
+                        Tables\Actions\Action::make('export_hadir_col')
+                            ->label('Export Hadir')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('success')
+                            ->modalHeading('Export Data Peserta Hadir')
+                            ->modalDescription(fn(LaporanKegiatan $record) => "Download data muda-mudi yang Hadir pada kegiatan " . ($record->kegiatan?->nm_kegiatan ?? '') . " ({$record->detail_tingkatan})")
+                            ->modalSubmitActionLabel('Download')
+                            ->form([
+                                Forms\Components\Radio::make('format')
+                                    ->label('Pilih Format File')
+                                    ->options([
+                                        'xlsx' => 'Excel (.xlsx)',
+                                        'csv' => 'CSV (.csv)',
+                                    ])
+                                    ->default('xlsx')
+                                    ->inline()
+                                    ->required(),
+                            ])
+                            ->action(function (LaporanKegiatan $record, array $data) {
+                                return RekapKegiatanExportService::export($record, 'Hadir', $data['format']);
+                            })
+                    ),
                 TextColumn::make('izin')
                     ->label('Izin')
                     ->badge()
@@ -90,7 +115,31 @@ class LaporanKegiatanResource extends Resource
                             $hadirPercent = 0;
                         }
                         return $totalAlfa . ' peserta / ' . $hadirPercent . '%';
-                    }),
+                    })
+                    ->tooltip('Klik untuk export data Alfa (Excel / CSV)')
+                    ->action(
+                        Tables\Actions\Action::make('export_alfa_col')
+                            ->label('Export Alfa')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('danger')
+                            ->modalHeading('Export Data Peserta Alfa')
+                            ->modalDescription(fn(LaporanKegiatan $record) => "Download data muda-mudi yang Alfa pada kegiatan " . ($record->kegiatan?->nm_kegiatan ?? '') . " ({$record->detail_tingkatan})")
+                            ->modalSubmitActionLabel('Download')
+                            ->form([
+                                Forms\Components\Radio::make('format')
+                                    ->label('Pilih Format File')
+                                    ->options([
+                                        'xlsx' => 'Excel (.xlsx)',
+                                        'csv' => 'CSV (.csv)',
+                                    ])
+                                    ->default('xlsx')
+                                    ->inline()
+                                    ->required(),
+                            ])
+                            ->action(function (LaporanKegiatan $record, array $data) {
+                                return RekapKegiatanExportService::export($record, 'Alfa', $data['format']);
+                            })
+                    ),
                 TextColumn::make('total_peserta')
                     ->label('Total Keseluruhan')
                     ->badge()
@@ -105,6 +154,65 @@ class LaporanKegiatanResource extends Resource
                     ->color('warning')
                     ->icon('heroicon-o-rocket-launch')
                     ->url(fn(LaporanKegiatan $record) => '/laporan-kegiatans/' . $record->id . '/rekap-kegiatan'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('export_hadir_action')
+                        ->label('Export Hadir')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->modalHeading('Export Data Peserta Hadir')
+                        ->modalSubmitActionLabel('Download')
+                        ->form([
+                            Forms\Components\Radio::make('format')
+                                ->label('Pilih Format File')
+                                ->options([
+                                    'xlsx' => 'Excel (.xlsx)',
+                                    'csv' => 'CSV (.csv)',
+                                ])
+                                ->default('xlsx')
+                                ->inline()
+                                ->required(),
+                        ])
+                        ->action(fn(LaporanKegiatan $record, array $data) => RekapKegiatanExportService::export($record, 'Hadir', $data['format'])),
+                    Tables\Actions\Action::make('export_alfa_action')
+                        ->label('Export Alfa')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->modalHeading('Export Data Peserta Alfa')
+                        ->modalSubmitActionLabel('Download')
+                        ->form([
+                            Forms\Components\Radio::make('format')
+                                ->label('Pilih Format File')
+                                ->options([
+                                    'xlsx' => 'Excel (.xlsx)',
+                                    'csv' => 'CSV (.csv)',
+                                ])
+                                ->default('xlsx')
+                                ->inline()
+                                ->required(),
+                        ])
+                        ->action(fn(LaporanKegiatan $record, array $data) => RekapKegiatanExportService::export($record, 'Alfa', $data['format'])),
+                    Tables\Actions\Action::make('export_semua_action')
+                        ->label('Export Hadir & Alfa')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('gray')
+                        ->modalHeading('Export Semua (Hadir & Alfa)')
+                        ->modalSubmitActionLabel('Download')
+                        ->form([
+                            Forms\Components\Radio::make('format')
+                                ->label('Pilih Format File')
+                                ->options([
+                                    'xlsx' => 'Excel (.xlsx)',
+                                    'csv' => 'CSV (.csv)',
+                                ])
+                                ->default('xlsx')
+                                ->inline()
+                                ->required(),
+                        ])
+                        ->action(fn(LaporanKegiatan $record, array $data) => RekapKegiatanExportService::export($record, null, $data['format'])),
+                ])
+                ->label('Export')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('info'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
